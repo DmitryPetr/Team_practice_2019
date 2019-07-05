@@ -1,17 +1,10 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.*;
 
 public class Parsing {
     private static Parsing instance;
-    private static int countHour;
-    private static int countDay;
-    private static int countMonth;
     private static int step;
-    private int EndDay;
-    private int EndMonth;
-
+    private Time countTime;
     /**
      * Приватный конструктор и метод getInstance реализуют паттерн Singleton
      * */
@@ -21,22 +14,10 @@ public class Parsing {
         return  instance;
     }
     private Parsing(String data, int step, int startHour){
-        countHour = startHour;
-        String[] split = data.split("[-]");
-        countMonth = Integer.parseInt(split[1]);
-        countDay = Integer.parseInt(split[2]);
+        countTime = new Time(data, startHour);
         this.step = step;
         setDataStart(data);
-        setDataEnd(data);
-        setLasts(data);
     }
-
-    public void setLasts(String ends) {
-        String[] split = ends.split("[-]");
-        EndDay = Integer.parseInt(split[2]);
-        EndMonth = Integer.parseInt(split[1]);
-    }
-
     /**
      * Параметры
      * source - источник
@@ -51,7 +32,6 @@ public class Parsing {
     private String location = "q=Moscow";
     private static final String format = "format=json";
     private String dataStart;
-    private String dataEnd;
     private static final String timeReload = "tp=1";
     HttpURLConnection connection = null;
         String answser;
@@ -61,25 +41,26 @@ public class Parsing {
         this.dataStart = str.append(dataStart).toString();
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setLocation(double x, double y) {
+        StringBuilder str = new StringBuilder("q=");
+        this.location = str.append(x+","+y).toString();
     }
 
-    public void setDataEnd(String dataEnd) {
-        StringBuilder str = new StringBuilder("enddate=");
-        this.dataEnd =  str.append(dataEnd).toString();
+    public void setLocation(String location) {
+        StringBuilder str = new StringBuilder("q=");
+        this.location = str.append(location).toString();
     }
+
     /**
      * Отравление HTTP запроса на сервер API для получения необходимой информации
      * */
     private void getMesWeather() {
-        String request = new String(source+key+"&"+location+"&"+format+"&"+dataStart+"&"+dataEnd+"&"+timeReload);
+        String request = new String(source+key+"&"+location+"&"+format+"&"+dataStart+"&"+timeReload);
         try {
             connection = (HttpURLConnection) new URL(request).openConnection();
             connection.setRequestMethod("GET");
-            //connection.setUseCaches(false);
-            connection.setConnectTimeout(250);
-            connection.setReadTimeout(250);
+            connection.setConnectTimeout(1250);
+            connection.setReadTimeout(1250);
             connection.connect();
             StringBuilder sb = new StringBuilder();
 
@@ -101,47 +82,54 @@ public class Parsing {
         }
     }
 
+    /**
+     * Метод getParameters - метода, осуществяющий получение данных о погоде путём отправления HTTTP запроса и осуществяющий парсинг ответа, в случае успеха
+     * */
     public WeatherPrameters getParameters(){
-        if(countMonth>7&&countDay>4){
+        if(countTime.getMonth()>7&&countTime.getDay()>4){
             /*
             * Возможно сделать более красиво
             * */
-            System.out.println("Error, no information on this month!");
             return null;
         }
-        if(countHour>24){
-            countDay++;
-            countHour -= 24;
+        if(countTime.getHour()>=24){
+            countTime.setDay(countTime.getDay()+1);
+            countTime.setHour(countTime.getHour()-24);
+            String dataNext = new String(countTime.getYear()+"-"+countTime.getMonth()+"-"+countTime.getDay());
+            setDataStart(dataNext);
         }
-        if(countMonth==5&&countDay>31||countMonth==6&&countDay>30){
-            countMonth++;
-            countDay = 1;
+        if(countTime.getMonth()==5&&countTime.getDay()>=31||countTime.getMonth()==6&&countTime.getDay()>=30){
+            countTime.setMonth(countTime.getMonth()+1);
+            countTime.setDay(1);
+            String dataNext = new String(countTime.getYear()+"-"+countTime.getMonth()+"-"+countTime.getDay());
+            setDataStart(dataNext);
         }
-        if(countDay>EndDay||countMonth>countDay)
-            return null;
-        if(countHour<24){
+        if(countTime.getHour()<24){
           answser = "";
           getMesWeather();
-            String find = "\"time\":\"" + (countHour*100) + "\"";
+            String find = "\"time\":\"" + (countTime.getHour()*100) + "\"";
             int index = answser.indexOf(find);
+            if(index<0) return null;
             answser = answser.substring(index);
-            index = answser.indexOf("windspeedKmph");
             index += 16;
             StringBuilder strBuf = new StringBuilder();
-            for(int i = index;i<index+2;i++)
-                strBuf.append(answser.charAt(i));
+            for(int i = index;i<index+3;i++){
+                if(Character.isDigit(answser.charAt(i))){
+                strBuf.append(answser.charAt(i));}
+            }
             int parameter1 = Integer.parseInt(strBuf.toString());
             index += 21;
             strBuf.setLength(0);
-            for(int i = index;i<index+3;i++)
-                strBuf.append(answser.charAt(i));
+            for(int i = index;i<index+3;i++) {
+                if (Character.isDigit(answser.charAt(i))) {
+                    strBuf.append(answser.charAt(i));
+                }
+            }
             int parameter2 = Integer.parseInt(strBuf.toString());
             WeatherPrameters result = new WeatherPrameters(parameter1, parameter2);
-            countHour += step;
+            countTime.setHour(countTime.getHour()+step);
             return result;
     }
         return null;
     }
-
-
 }
