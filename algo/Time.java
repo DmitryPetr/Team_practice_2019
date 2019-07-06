@@ -1,3 +1,6 @@
+import java.io.IOException;
+import java.util.logging.Level;
+
 public class Time {
     private int year;
     private int month;
@@ -29,16 +32,16 @@ public class Time {
     /**
      * Метод TimeNotOut необходим для работы алгоритме в режиме полёта по времени, который вычисляет "закончилось ли время полёта?"
      * */
-    public boolean TimeNotOut(){
-        System.out.println("In TimeNotOut:\n");
-        System.out.println("Month: "+month+"\nDay: "+day+"\nHour: "+hour+"\n");
+    public boolean TimeNotOut() throws IOException {
+        //Logs.writeLog(" -- In TimeNotOut: \n", Level.INFO);
+        //System.out.println("Month: "+month+"\nDay: "+day+"\nHour: "+hour+"\n");
 
         if(month==0&&day==0&&hour==0){
-            System.out.println("In TimeNotOut - false\n");
+           // System.out.println("In TimeNotOut - false\n");
 
             return false;}
         else{
-            System.out.println("In TimeNotOut - true\n");
+           // System.out.println("In TimeNotOut - true\n");
             return true;}
     }
 

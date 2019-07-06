@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.*;
+import java.util.logging.Level;
+import java.io.IOException;
 
 public class Parsing {
     private static Parsing instance;
@@ -8,15 +10,18 @@ public class Parsing {
     /**
      * Приватный конструктор и метод getInstance реализуют паттерн Singleton
      * */
-    public static Parsing getInstance(String data, int step, int startHour){
+    public static Parsing getInstance(String data, int step, int startHour) throws IOException {
         if(instance==null){
+            Logs.writeLog(" -- Create first instance of parsing class! -- \n", Level.INFO);
         instance = new Parsing(data,step,startHour);}
+        Logs.writeLog(" -- The request instance of the parsing class! -- \n", Level.INFO);
         return  instance;
     }
-    private Parsing(String data, int step, int startHour){
+    private Parsing(String data, int step, int startHour) throws IOException {
         countTime = new Time(data, startHour);
         this.step = step;
         setDataStart(data);
+        Logs.writeLog(" -- Create parsing class instance successful --\n", Level.INFO);
     }
     /**
      * Параметры
@@ -54,7 +59,7 @@ public class Parsing {
     /**
      * Отравление HTTP запроса на сервер API для получения необходимой информации
      * */
-    private void getMesWeather() {
+    private void getMesWeather() throws IOException {
         String request = new String(source+key+"&"+location+"&"+format+"&"+dataStart+"&"+timeReload);
         try {
             connection = (HttpURLConnection) new URL(request).openConnection();
@@ -71,10 +76,11 @@ public class Parsing {
                     sb.append(line+"\n");
                 }
                 }else{
-                System.out.println("Fail" + connection.getResponseCode()+ ", "+ connection.getResponseMessage());
+                Logs.writeLog(" -- Fail" + connection.getResponseCode()+ ", "+ connection.getResponseMessage()+" --\n", Level.WARNING);
                 }
             answser = sb.toString();
         } catch (Throwable cause) {
+            Logs.writeLog(" !--! Fatal  error sending HTTP request! !--!\n", Level.SEVERE);
             cause.printStackTrace();
         }finally{
             if (connection != null)
@@ -85,11 +91,16 @@ public class Parsing {
     /**
      * Метод getParameters - метода, осуществяющий получение данных о погоде путём отправления HTTTP запроса и осуществяющий парсинг ответа, в случае успеха
      * */
-    public WeatherPrameters getParameters(){
+    public WeatherPrameters getParameters() throws IOException {
+       // System.out.println("Start getParametrers");
+        //System.out.println("Count time:\n Monnth:"+countTime.getMonth()+"\nDay:"+countTime.getDay()+"\nHour:"+countTime.getHour()+"\n");
         if(countTime.getMonth()>7&&countTime.getDay()>4){
+
+            Logs.writeLog(" -- Error, out of available time! --\n", Level.WARNING);
             /*
             * Возможно сделать более красиво
             * */
+           // System.out.println("Error, no information on this month!");
             return null;
         }
         if(countTime.getHour()>=24){
@@ -105,18 +116,28 @@ public class Parsing {
             setDataStart(dataNext);
         }
         if(countTime.getHour()<24){
+           // System.out.println("Enter HTTP\n");
           answser = "";
           getMesWeather();
+           // System.out.println("successfully\n");
             String find = "\"time\":\"" + (countTime.getHour()*100) + "\"";
+            //System.out.println("Find: "+ "\"time\":\"" + (countTime.getHour()*100) + "\"");
             int index = answser.indexOf(find);
-            if(index<0) return null;
+           // System.out.println("INdex: "+index);
+            if(index<0){
+                Logs.writeLog(" -- Error: unable to find any matching weather location to the query submitted! --\n", Level.WARNING);
+                return null;}
+            //System.out.println("successfully find\n");
             answser = answser.substring(index);
+            index = answser.indexOf("windspeedKmph");
             index += 16;
+            //System.out.println("successfully indexWind\n");
             StringBuilder strBuf = new StringBuilder();
             for(int i = index;i<index+3;i++){
                 if(Character.isDigit(answser.charAt(i))){
                 strBuf.append(answser.charAt(i));}
             }
+            //System.out.println(strBuf);
             int parameter1 = Integer.parseInt(strBuf.toString());
             index += 21;
             strBuf.setLength(0);
@@ -126,10 +147,13 @@ public class Parsing {
                 }
             }
             int parameter2 = Integer.parseInt(strBuf.toString());
+           // System.out.println("successfully parametr\n");
             WeatherPrameters result = new WeatherPrameters(parameter1, parameter2);
             countTime.setHour(countTime.getHour()+step);
+            //System.out.println("Ends\n");
             return result;
     }
+        Logs.writeLog(" -- Error at parsing! --\n", Level.WARNING);
         return null;
     }
 }

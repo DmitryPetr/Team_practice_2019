@@ -18,4 +18,14 @@ public class WeatherPrameters {
     public int getWindGustKmph() {
         return WindGustKmph;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        str.append("wind agle: "+ WinddirDegree + "\n");
+        str.append("wind speed: "+ WinddirDegree + "\n");
+        return  str.toString();
+    }
+
+
 }
