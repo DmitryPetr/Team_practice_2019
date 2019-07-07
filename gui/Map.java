@@ -1,5 +1,6 @@
 package gui;
 
+import dateStruct.doublePoint;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -7,8 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-
-//import dateStruct.Point;
 
 public class Map extends JPanel {
     private int width;
@@ -18,10 +17,10 @@ public class Map extends JPanel {
     private Image MapImage;
     private String region = "australia.jpg";
 
-    private Point StartPoint;
+    private doublePoint StartPoint;
     private Color PointColor;
     private double ScaleCoof;
-    private Point ScalePoint;
+    private doublePoint ScalePoint;
     private double ImageCoof;
     int offsetX,offsetY;
     /**
@@ -70,16 +69,17 @@ public class Map extends JPanel {
       * @param p - стартовая точка
      * обязательная перерисовка области
      */
-    public void setStartPoint(Point p){
-        StartPoint = new Point((int)(( p.getX()+ offsetX) /ScaleCoof ), (int)((p.getY()+ offsetY)/ScaleCoof));
+    public void setStartPoint(doublePoint p){
+        StartPoint = new doublePoint((int)Math.abs((( p.getX()+ offsetX) /ScaleCoof )),
+                (int) Math.abs(((p.getY()+ offsetY)/ScaleCoof)));
         PointColor = new Color(0, 13, 255);
         repaint();
     }
 
-    public Point getStartPoint(){
+    public doublePoint getStartPoint(){
         int x = (int) Math.abs( StartPoint.getX()  / ImageCoof );
         int y = (int) Math.abs( StartPoint.getY() / ImageCoof );
-        return new Point(x,y);
+        return new doublePoint(x,y);
     }
 
     /**
@@ -87,10 +87,10 @@ public class Map extends JPanel {
      * @param coof - прибавка к масштабу
      * @param coord - точка вызова ищменеия масштаба
      */
-    public void MapScale(double coof, Point coord){
+    public void MapScale(double coof, doublePoint coord){
         if( isVisible(coord) && (ScaleCoof + coof) >= 1.0 && (ScaleCoof + coof ) < 3.5){
             ScaleCoof += coof;
-            ScalePoint = new Point(coord);
+            ScalePoint = new doublePoint(coord);
 
             if(ScalePoint != null) {
                 double MoveMapCoofX = (ScalePoint.getX() / width); // тут изменить коэф смещения для большей плавности
@@ -129,7 +129,7 @@ public class Map extends JPanel {
      * @param coord - точка проверки
      * @return true - если входит в область видимой карты
      */
-    private boolean isVisible(@NotNull Point coord) {
+    private boolean isVisible(@NotNull doublePoint coord) {
         int borderX = 10;
         int borderY = 50;
         if( (coord.getX()<= borderX || coord.getX() >= width + borderX) ||
@@ -139,7 +139,7 @@ public class Map extends JPanel {
     }
 
     /*
-    public Point getRealCoordiante(){
+    public doublePoint getRealCoordiante(){
 
     }
     */
@@ -184,6 +184,7 @@ public class Map extends JPanel {
     @Override
     public void paint(Graphics g) {
 
+
         g.drawImage(MapImage,
                 -offsetX,(int) -offsetY,
                 (int)(MapImage.getWidth(null) * ScaleCoof *ImageCoof),
@@ -208,18 +209,22 @@ public class Map extends JPanel {
         if(StartPoint != null){
             g.setColor(PointColor);
             int radius = 3;
-            int X = (int) ((StartPoint.getX() -radius) * ScaleCoof - offsetX);
-            int Y = (int) ((StartPoint.getY() +radius) * ScaleCoof - offsetY);
+            int X = (int) (StartPoint.getX() * ScaleCoof - offsetX - radius);
+            int Y = (int) (StartPoint.getY() * ScaleCoof - offsetY - radius);
 
-            if (isVisible(new Point(X,Y))){
-                g.drawOval( X, Y,2*radius,2*radius);
+            //if (isVisible(new doublePoint(X,Y))){
+
+                g.drawOval( X , Y ,2*radius,2*radius);
                 g.fillOval( X, Y,2*radius,2*radius);
-            }
-
+           // }
         }
 
         /*
         Алгоритм отрисовки пути
          */
+    }
+
+    private void drawPoint(doublePoint p){
+
     }
 }

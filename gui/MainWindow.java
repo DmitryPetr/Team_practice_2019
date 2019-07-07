@@ -3,6 +3,7 @@ package gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import dateStruct.doublePoint;
 
 public class MainWindow extends JFrame{
 
@@ -50,7 +51,7 @@ public class MainWindow extends JFrame{
             mouseX = event.getX();
             mouseY = event.getY();
             System.out.println("X = " + mouseX + "; Y = " + mouseY);
-            map.setStartPoint(new Point(mouseX,mouseY));
+            map.setStartPoint(new doublePoint(mouseX,mouseY));
             commands.unlockBegin();
         }
 
@@ -71,7 +72,7 @@ public class MainWindow extends JFrame{
             if(e.getWheelRotation()> 0) {
                 step *= -1;
             }
-            map.MapScale(step,new Point(e.getX(),e.getY()));
+            map.MapScale(step,new doublePoint(e.getX(),e.getY()));
         }
     }
 
