@@ -1,0 +1,31 @@
+1) australia:
+	bottom left: S43°44' E112°56'
+	upper right: S7°22'  E154°19'
+
+2) balkans:
+	bottom left: N36°4'  E13°26'
+	upper right: N48°10' E29°53'
+
+3) china:
+	bottom left: N17°42' E100°6'
+	upper right: N44°6'  E131°21'
+
+4) eu:
+	bottom left: N36°6'  W11°19'
+	upper right: N67°43' E42°52'
+
+5) india:
+	bottom left: N5°22'  E65°24'
+	upper right: N31°5'  E92°35'
+
+6) russia:
+	bottom left: N52°52' E28°50'
+	upper right: N60°38' E43°6'
+
+7) scandinavia:
+	bottom left: N54°53' E4°11'
+	upper right: N71°19' E41°18'
+
+8) usa:
+	bottom left: N4°52'  W124°6'
+	upper right: N49°20' W72°3'
