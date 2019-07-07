@@ -30,7 +30,7 @@ public class MainWindow extends JFrame{
         commands.region.addActionListener(new JComboBoxActionListener());
     }
 
-    class MapMouseAdapter extends MouseAdapter {
+    class MapMouseAdapter extends MouseAdapter implements  MouseWheelListener{
         Color PointColor;
         private int mouseX;
         private int mouseY;
@@ -42,6 +42,7 @@ public class MainWindow extends JFrame{
          */
         public MapMouseAdapter(){
             PointColor = new Color(0, 13, 255);
+            addMouseWheelListener(this);
         }
 
         @Override
@@ -50,7 +51,6 @@ public class MainWindow extends JFrame{
             mouseY = event.getY();
             System.out.println("X = " + mouseX + "; Y = " + mouseY);
             map.setStartPoint(new Point(mouseX,mouseY));
-            map.repaint();
             commands.unlockBegin();
         }
 
@@ -58,6 +58,21 @@ public class MainWindow extends JFrame{
         public void mouseDragged(MouseEvent me) {
             mouseX = me.getX();
             mouseY = me.getY();
+        }
+
+        /**
+         * Событие на вращение колеса мышки
+         * @param e
+         * Имеет отдельного слушателя т.е. не зависит от включенного режима выбора
+         */
+        @Override
+        public  void mouseWheelMoved(MouseWheelEvent e){
+            double step = 0.05;
+            if(e.getWheelRotation()> 0) {
+                step *= -1;
+            }
+            map.MapScale(step,new Point(e.getX(),e.getY()));
+
         }
 
     }
@@ -94,7 +109,7 @@ public class MainWindow extends JFrame{
             System.out.println(value);
 
 
-             map.setAlgorithmData();
+           //  map.setAlgorithmData();
              map.repaint();
         }
     }
@@ -116,7 +131,7 @@ public class MainWindow extends JFrame{
                     value = "australia.jpg";
                     break;
                 case 1:
-                    value = "";
+                    value = "spain.jpg";
                     break;
                 case 2:
                     value = "";
