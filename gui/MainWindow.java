@@ -72,9 +72,7 @@ public class MainWindow extends JFrame{
                 step *= -1;
             }
             map.MapScale(step,new Point(e.getX(),e.getY()));
-
         }
-
     }
 
     class JToggleButtonActionListener implements ActionListener {

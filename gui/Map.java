@@ -8,6 +8,8 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+//import dateStruct.Point;
+
 public class Map extends JPanel {
     private int width;
     private int height;
@@ -21,6 +23,7 @@ public class Map extends JPanel {
     private double ScaleCoof;
     private Point ScalePoint;
     private double ImageCoof;
+    int offsetX,offsetY;
     /**
      * @param width - ширина окна
      * @param height - высота окна
@@ -34,6 +37,7 @@ public class Map extends JPanel {
      * ScaleCoof - коэфицент масштаба
      * ScalePoint - точка-центр масштабирования
      * ImageCoof - коэфицент сжатия большого изображения
+     * offsetX,offsetY - смещение карты за левый верхний угол
      */
 
     /**
@@ -50,6 +54,7 @@ public class Map extends JPanel {
 
         setRegion(region);
         ScaleCoof = 1;
+        offsetX = offsetY =0;
     }
 
     /**
@@ -66,13 +71,15 @@ public class Map extends JPanel {
      * обязательная перерисовка области
      */
     public void setStartPoint(Point p){
-        StartPoint = new Point(p);
+        StartPoint = new Point((int)(( p.getX()+ offsetX) /ScaleCoof ), (int)((p.getY()+ offsetY)/ScaleCoof));
         PointColor = new Color(0, 13, 255);
         repaint();
     }
 
     public Point getStartPoint(){
-        return StartPoint;
+        int x = (int) Math.abs( StartPoint.getX()  / ImageCoof );
+        int y = (int) Math.abs( StartPoint.getY() / ImageCoof );
+        return new Point(x,y);
     }
 
     /**
@@ -81,11 +88,40 @@ public class Map extends JPanel {
      * @param coord - точка вызова ищменеия масштаба
      */
     public void MapScale(double coof, Point coord){
-        if( isVisible(coord) && (ScaleCoof + coof) >= 1.0 && (ScaleCoof + coof ) < 2.5){
+        if( isVisible(coord) && (ScaleCoof + coof) >= 1.0 && (ScaleCoof + coof ) < 3.5){
             ScaleCoof += coof;
             ScalePoint = new Point(coord);
-            repaint();
+
+            if(ScalePoint != null) {
+                double MoveMapCoofX = (ScalePoint.getX() / width); // тут изменить коэф смещения для большей плавности
+                double MoveMapCoofY = (ScalePoint.getY() / height);
+
+                if (MoveMapCoofX <= 0.6 && MoveMapCoofX >= 0.4) {
+                    MoveMapCoofX = 0.5;
+                    offsetX = (int) Math.round(width * MoveMapCoofX * (ScaleCoof - 1));
+                } else {
+                    offsetX = (int) Math.round(ScalePoint.getX() * MoveMapCoofX * ScaleCoof);
+
+                    if ((MapImage.getWidth(null) * ImageCoof * ScaleCoof - offsetX) < width) {
+                        offsetX = (int) Math.round((MapImage.getWidth(null) * ScaleCoof * ImageCoof - width));
+                    }
+                }
+
+                if (MoveMapCoofY <= 0.6 && MoveMapCoofY >= 0.4) {
+                    MoveMapCoofY = 0.5;
+                    offsetY = (int) Math.round(width * MoveMapCoofY * (ScaleCoof - 1));
+                } else {
+                    offsetY = (int) Math.round(ScalePoint.getY() * MoveMapCoofY * ScaleCoof);
+
+                    if ((MapImage.getHeight(null) * ScaleCoof * ImageCoof - offsetY) < height) {
+                        offsetY = (int) Math.round((MapImage.getHeight(null) * ScaleCoof * ImageCoof - height));
+                    }
+                }
+            }
+        repaint();
         }
+
+
     }
 
     /**
@@ -142,39 +178,11 @@ public class Map extends JPanel {
     /**
      * Метод для отрисовки
      * @param g
-     * offsetX, offsetY - смещение карты за левый верхний угол при масштабировании
      * для получения реальных координат на отрисованной карте умножайте на * ScaleCoof * ImageCoof
      * и после вычитайте смещение угла карты
      */
     @Override
     public void paint(Graphics g) {
-        int offsetX=0,offsetY=0;
-
-        if(ScalePoint != null){
-            double MoveMapCoofX = (ScalePoint.getX()/width); // тут изменить коэф смещения для большей плавности
-            double MoveMapCoofY = (ScalePoint.getY()/height);
-
-            if(MoveMapCoofX <= 0.6 && MoveMapCoofX >= 0.4){
-                MoveMapCoofX = 0.5;
-                offsetX = (int)Math.round(width*MoveMapCoofX*(ScaleCoof-1));
-            }else {
-                offsetX = (int) Math.round(ScalePoint.getX()*MoveMapCoofX * ScaleCoof);
-            }
-            if(MoveMapCoofY <= 0.6 && MoveMapCoofY >= 0.4){
-                MoveMapCoofY = 0.5;
-                offsetY = (int)Math.round(width*MoveMapCoofY*(ScaleCoof-1));
-            }else{
-                offsetY = (int) Math.round(ScalePoint.getY()*MoveMapCoofY * ScaleCoof);
-            }
-
-
-            if((MoveMapCoofX - 0.5 >= 0.01)  && (MapImage.getWidth(null)*ImageCoof*ScaleCoof-offsetX)< width ){
-                offsetX = (int)Math.round((MapImage.getWidth(null)*ScaleCoof*ImageCoof - width));
-            }
-            if((MoveMapCoofY - 0.5 >= 0.01) && (MapImage.getHeight(null)*ScaleCoof*ImageCoof-offsetY)< height ){
-                offsetY= (int)Math.round((MapImage.getHeight(null)*ScaleCoof*ImageCoof - height));
-            }
-        }
 
         g.drawImage(MapImage,
                 -offsetX,(int) -offsetY,
@@ -200,8 +208,8 @@ public class Map extends JPanel {
         if(StartPoint != null){
             g.setColor(PointColor);
             int radius = 3;
-            int X = (int) ((StartPoint.getX() -radius) * ScaleCoof * ImageCoof - offsetX);
-            int Y = (int) ((StartPoint.getY() +radius) * ScaleCoof * ImageCoof - offsetY);
+            int X = (int) ((StartPoint.getX() -radius) * ScaleCoof - offsetX);
+            int Y = (int) ((StartPoint.getY() +radius) * ScaleCoof - offsetY);
 
             if (isVisible(new Point(X,Y))){
                 g.drawOval( X, Y,2*radius,2*radius);
@@ -209,7 +217,6 @@ public class Map extends JPanel {
             }
 
         }
-
 
         /*
         Алгоритм отрисовки пути
