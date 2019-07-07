@@ -30,19 +30,51 @@ public class MainWindow extends JFrame{
         commands.region.addActionListener(new JComboBoxActionListener());
     }
 
-    class MapMouseAdapter extends MouseAdapter {
+    class MapMouseAdapter extends MouseAdapter implements  MouseWheelListener{
+        Color PointColor;
+        private int mouseX;
+        private int mouseY;
 
         /**
-         * ОРГАНИЗОВАТЬ ВЫВОД ПОЛУЧЕННОГО ПОЛОЖЕНИЯ КУРСОРА!!!
-         * ДОБАВИТЬ КЛАСС ДЛЯ ТЕКУЩЕГО ПОЛОЖЕНИЯ!!!
-         * ОТРИСОВАТЬ ТЕКУЩЕЕ ПОЛОЖЕНИЕ!!!
+         * ОРГАНИЗОВАТЬ ВЫВОД ПОЛУЧЕННОГО ПОЛОЖЕНИЯ КУРСОРА!!! - сделано
+         * ДОБАВИТЬ КЛАСС ДЛЯ ТЕКУЩЕГО ПОЛОЖЕНИЯ!!! - координаты при движении обновляются
+         * ОТРИСОВАТЬ ТЕКУЩЕЕ ПОЛОЖЕНИЕ!!! - добавлена передача точки в Map и её отображение
          */
+        public MapMouseAdapter(){
+            PointColor = new Color(0, 13, 255);
+            addMouseWheelListener(this);
+        }
+
         @Override
         public void mouseClicked(MouseEvent event) {
-            int X = event.getX();
-            int Y = event.getY();
-            System.out.println("X = " + X + "; Y = " + Y);
+            mouseX = event.getX();
+            mouseY = event.getY();
+            System.out.println("X = " + mouseX + "; Y = " + mouseY);
+            map.setStartPoint(new Point(mouseX,mouseY));
+            commands.unlockBegin();
         }
+
+        @Override
+        public void mouseDragged(MouseEvent me) {
+            mouseX = me.getX();
+            mouseY = me.getY();
+        }
+
+        /**
+         * Событие на вращение колеса мышки
+         * @param e
+         * Имеет отдельного слушателя т.е. не зависит от включенного режима выбора
+         */
+        @Override
+        public  void mouseWheelMoved(MouseWheelEvent e){
+            double step = 0.05;
+            if(e.getWheelRotation()> 0) {
+                step *= -1;
+            }
+            map.MapScale(step,new Point(e.getX(),e.getY()));
+
+        }
+
     }
 
     class JToggleButtonActionListener implements ActionListener {
@@ -64,7 +96,7 @@ public class MainWindow extends JFrame{
 
         /**
          * ОРГАНИЗОВАТЬ ЗАПУСК АЛГОРИТМА!!!
-         * СДЕЛАТЬ КНОПКУ НЕДОСТУПНОЙ, ПОКА НЕ БУДЕТ УСТАНОВЛЕНО СТАРТОВОЕ ПОЛОЖЕНИЕ!!!
+         * СДЕЛАТЬ КНОПКУ НЕДОСТУПНОЙ, ПОКА НЕ БУДЕТ УСТАНОВЛЕНО СТАРТОВОЕ ПОЛОЖЕНИЕ!!! - сделано
          * АНАЛОГИЧНО ИЗВЛЕЧЬ ИНФОРМАЦИЮ ИЗ ПОЛЯ "МЕСЯЦ", "ЧИСЛО" и "ИНТЕРВАЛ ВРЕМЕНИ"!!!
          * ОПЦИОНАЛЬНО: СДЛЕАТЬ ДЛЯ МАЯ ДОСТУПНЫМИ НЕ ВСЕ ДНИ, ДЛЯ ИЮНЯ ИСКЛЮЧИТЬ 31, ДЛЯ ИЛЯ - НЕНАСТУПИВШИЕ ДНИ!!!
          */
@@ -75,6 +107,10 @@ public class MainWindow extends JFrame{
             String value = new String((String)commands.mode.getItemAt(index));
             //System.out.println(commands.mode.getItemAt(index));
             System.out.println(value);
+
+
+           //  map.setAlgorithmData();
+             map.repaint();
         }
     }
 
@@ -83,6 +119,7 @@ public class MainWindow extends JFrame{
         /**
          * ДОБАВИТЬ НАЗВАНИЯ ОСТАЛЬНЫХ РЕГИОНОВ!!!
          * НЕ ЗАБЫТЬ, ЧТО ИЗНАЧАЛЬНО ОТКРЫВАЕТСЯ ФАЙЛ AUSTRALIA.JPG!!!
+         * ИСПРАВИТЬ ВЫПАДЕНИЯ ПРИ ВЫБОРЕ НЕЗАГРУЖЕННОГО РЕГИОНА!!!
          */
         @Override
         public void actionPerformed(ActionEvent event) {
@@ -94,7 +131,7 @@ public class MainWindow extends JFrame{
                     value = "australia.jpg";
                     break;
                 case 1:
-                    value = "";
+                    value = "spain.jpg";
                     break;
                 case 2:
                     value = "";
@@ -165,6 +202,11 @@ public class MainWindow extends JFrame{
             begin.setSize(140, 20);
             begin.setLocation(57, 290);
             this.add(begin);
+            begin.setEnabled(false);
+        }
+
+        public void unlockBegin(){
+            begin.setEnabled(true);
         }
     }
 }
