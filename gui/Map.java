@@ -1,32 +1,17 @@
 package gui;
 
-import dateStruct.doublePoint;
-import org.jetbrains.annotations.NotNull;
-
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import dateStruct.doublePoint;
+import org.jetbrains.annotations.NotNull;
 
 public class Map extends JPanel {
-    private int width;
-    private int height;
-    private boolean grid = false;
-    private Color gridColor = new Color(0,0,0, 87);
-    private Image MapImage;
-    private String region = "australia.jpg";
-
-    private doublePoint StartPoint;
-    private Color PointColor;
-    private double ScaleCoof;
-    private doublePoint ScalePoint;
-    private double ImageCoof;
-    int offsetX,offsetY;
     /**
-     * @param width - ширина окна
-     * @param height - высота окна
-     *
+     * width - ширина окна
+     * height - высота окна
      * grid - флаг сетки
      * grid Color - цвет сетки
      * MapImage - фоновое изображение
@@ -37,12 +22,28 @@ public class Map extends JPanel {
      * ScalePoint - точка-центр масштабирования
      * ImageCoof - коэфицент сжатия большого изображения
      * offsetX,offsetY - смещение карты за левый верхний угол
+     * bottomLefht - реальные координаты левого нижнего угла карты
+     * upperRight - реальные координаты правого верхнего угла карты
      */
+    private int width;
+    private int height;
+    private boolean grid = false;
+    private Color gridColor = new Color(0,0,0, 87);
+    private Image MapImage;
+    private String region = "australia.jpg";
+    private doublePoint StartPoint;
+    private Color PointColor;
+    private double ScaleCoof;
+    private doublePoint ScalePoint;
+    private double ImageCoof;
+    int offsetX,offsetY;                //МОЖНО ЛИ ЗАНЕСТИ В PRIVATE???
+    private doublePoint bottomLefht;
+    private doublePoint upperRight;
 
     /**
      * Конструктор класса
-     * @param width
-     * @param height
+     * @param width - ширина окна карты
+     * @param height - высота окна карты
      * загрузка стартового региона через setRegion
      * Стартовый масштаб 1
      */
@@ -50,15 +51,14 @@ public class Map extends JPanel {
         super();
         this.width = width;
         this.height = height;
-
-        setRegion(region);
+        setRegion(region, bottomLefht, upperRight);
         ScaleCoof = 1;
         offsetX = offsetY =0;
     }
 
     /**
      * изменение флага сетки
-     * @param value
+     * @param value - true, если нужна сетка
      */
     public void setGrid(boolean value) {
         grid = value;
@@ -66,7 +66,7 @@ public class Map extends JPanel {
 
     /**
      * установка стартовой точки на карте
-      * @param p - стартовая точка
+     * @param p - стартовая точка
      * обязательная перерисовка области
      */
     public void setStartPoint(doublePoint p){
@@ -76,6 +76,11 @@ public class Map extends JPanel {
         repaint();
     }
 
+    /**
+     * ДЛЯ ЧЕГО ЭТА ШТУКА???
+     * ПОЧЕМУ ВОЗВРАЩАЕТ INT???
+     * @return
+     */
     public doublePoint getStartPoint(){
         int x = (int) Math.abs( StartPoint.getX()  / ImageCoof );
         int y = (int) Math.abs( StartPoint.getY() / ImageCoof );
@@ -118,10 +123,8 @@ public class Map extends JPanel {
                     }
                 }
             }
-        repaint();
+            repaint();
         }
-
-
     }
 
     /**
@@ -138,12 +141,24 @@ public class Map extends JPanel {
         return true;
     }
 
-    /*
+    /**
+     * ЕЩЁ РАЗ ПРОВЕРИТЬ КОРРЕКТНОСТЬ ПОДСЧЁТА!!!
+     * ДОБАВИТЬ УЧЁТ МАСШТАБА(СЕЙЧАС РАБОТАЕТ ПРАВИЛЬНО КОГДА НЕТ ПРИБЛИЖЕНИЯ)!!!
+     * вычисление реальных координат в дробных градусах для стартовой точки
+     * @return - реальные координаты стартовой точки
+     */
     public doublePoint getRealCoordiante(){
-
+        //коэффициенты показывают сколько приходится градусов на один пиксель
+        double coeffX = (bottomLefht.getX() - upperRight.getX()) / height;
+        double coeffY = (upperRight.getY() - bottomLefht.getY()) / width;
+        double x = upperRight.getX() + coeffX*StartPoint.getX();    //широта
+        double y = bottomLefht.getY() + coeffY*StartPoint.getY();   //долгота
+        return new doublePoint(x, y);
     }
-    */
 
+    /**
+     * РЕАЛИЗОВАТЬ!!!
+     */
     public  void setAlgorithmDate(){
         grid = false;
         // загрузка данных алгоритма
@@ -153,18 +168,20 @@ public class Map extends JPanel {
     /**
      * Загружает регион и высчитывает некоторые параметры
      * @param value - имя региона
+     * @param bottomLefht - реальные координаты левого нижнего угла в дробных градусах
+     * @param upperRight - реальные координаты правого верхнего угла в дробных градусах
      * безопасная загрузка
      */
-    public void setRegion(String value) {
+    public void setRegion(String value, doublePoint bottomLefht, doublePoint upperRight) {
         region = value;
+        this.bottomLefht = bottomLefht;
+        this.upperRight = upperRight;
         MapImage = null;
         try {
             String path = new String("");
-            //path = "src" + File.separator + "gui" + File.separator + "maps" + File.separator + "australia.jpg";
             path = "src" + File.separator + "gui" + File.separator + "maps" + File.separator + region;
             MapImage = ImageIO.read(new File(path));
         } catch (IOException e) {
-            //System.out.println("File not open!");
             String message = "File not open!";
             JOptionPane.showMessageDialog(null, message, "Error!", JOptionPane.PLAIN_MESSAGE);
             System.exit(-1);
@@ -177,14 +194,12 @@ public class Map extends JPanel {
 
     /**
      * Метод для отрисовки
-     * @param g
+     * @param g - графический контекст
      * для получения реальных координат на отрисованной карте умножайте на * ScaleCoof * ImageCoof
      * и после вычитайте смещение угла карты
      */
     @Override
     public void paint(Graphics g) {
-
-
         g.drawImage(MapImage,
                 -offsetX,(int) -offsetY,
                 (int)(MapImage.getWidth(null) * ScaleCoof *ImageCoof),
@@ -212,11 +227,12 @@ public class Map extends JPanel {
             int X = (int) (StartPoint.getX() * ScaleCoof - offsetX - radius);
             int Y = (int) (StartPoint.getY() * ScaleCoof - offsetY - radius);
 
+            //МОЖНО ЛИ УДАЛИТЬ ЗАКОММЕНЧЕННОЕ УСЛОВИЕ???
             //if (isVisible(new doublePoint(X,Y))){
 
-                g.drawOval( X , Y ,2*radius,2*radius);
-                g.fillOval( X, Y,2*radius,2*radius);
-           // }
+            g.drawOval( X , Y ,2*radius,2*radius);
+            g.fillOval( X, Y,2*radius,2*radius);
+            // }
         }
 
         /*
@@ -224,6 +240,11 @@ public class Map extends JPanel {
          */
     }
 
+    /**
+     * ДЛЯ ЧЕГО???
+     * РЕАЛИЗОВАТЬ!!!
+     * @param p
+     */
     private void drawPoint(doublePoint p){
 
     }

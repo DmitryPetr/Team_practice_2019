@@ -26,21 +26,14 @@ public class MainWindow extends JFrame{
 
         commands.start.addActionListener(new JToggleButtonActionListener());
         commands.begin.addActionListener(new JButtonActionListener());
-
-
         commands.region.addActionListener(new JComboBoxActionListener());
     }
 
     class MapMouseAdapter extends MouseAdapter implements  MouseWheelListener{
-        Color PointColor;
+        Color PointColor;   //МОЖНО ЛИ ДОБАВИТЬ В PRIVATE???
         private int mouseX;
         private int mouseY;
 
-        /**
-         * ОРГАНИЗОВАТЬ ВЫВОД ПОЛУЧЕННОГО ПОЛОЖЕНИЯ КУРСОРА!!! - сделано
-         * ДОБАВИТЬ КЛАСС ДЛЯ ТЕКУЩЕГО ПОЛОЖЕНИЯ!!! - координаты при движении обновляются
-         * ОТРИСОВАТЬ ТЕКУЩЕЕ ПОЛОЖЕНИЕ!!! - добавлена передача точки в Map и её отображение
-         */
         public MapMouseAdapter(){
             PointColor = new Color(0, 13, 255);
             addMouseWheelListener(this);
@@ -50,9 +43,8 @@ public class MainWindow extends JFrame{
         public void mouseClicked(MouseEvent event) {
             mouseX = event.getX();
             mouseY = event.getY();
-            System.out.println("X = " + mouseX + "; Y = " + mouseY);
             map.setStartPoint(new doublePoint(mouseX,mouseY));
-            commands.unlockBegin();
+            commands.begin.setEnabled(true);
         }
 
         @Override
@@ -63,7 +55,7 @@ public class MainWindow extends JFrame{
 
         /**
          * Событие на вращение колеса мышки
-         * @param e
+         * @param e - событие
          * Имеет отдельного слушателя т.е. не зависит от включенного режима выбора
          */
         @Override
@@ -95,7 +87,6 @@ public class MainWindow extends JFrame{
 
         /**
          * ОРГАНИЗОВАТЬ ЗАПУСК АЛГОРИТМА!!!
-         * СДЕЛАТЬ КНОПКУ НЕДОСТУПНОЙ, ПОКА НЕ БУДЕТ УСТАНОВЛЕНО СТАРТОВОЕ ПОЛОЖЕНИЕ!!! - сделано
          * АНАЛОГИЧНО ИЗВЛЕЧЬ ИНФОРМАЦИЮ ИЗ ПОЛЯ "МЕСЯЦ", "ЧИСЛО" и "ИНТЕРВАЛ ВРЕМЕНИ"!!!
          * ОПЦИОНАЛЬНО: СДЛЕАТЬ ДЛЯ МАЯ ДОСТУПНЫМИ НЕ ВСЕ ДНИ, ДЛЯ ИЮНЯ ИСКЛЮЧИТЬ 31, ДЛЯ ИЛЯ - НЕНАСТУПИВШИЕ ДНИ!!!
          */
@@ -108,43 +99,67 @@ public class MainWindow extends JFrame{
             System.out.println(value);
 
 
-           //  map.setAlgorithmData();
-             map.repaint();
+            //  map.setAlgorithmData();
+            map.repaint();
         }
     }
 
     class JComboBoxActionListener implements ActionListener {
 
-        /**
-         * ДОБАВИТЬ НАЗВАНИЯ ОСТАЛЬНЫХ РЕГИОНОВ!!!
-         * НЕ ЗАБЫТЬ, ЧТО ИЗНАЧАЛЬНО ОТКРЫВАЕТСЯ ФАЙЛ AUSTRALIA.JPG!!!
-         * ИСПРАВИТЬ ВЫПАДЕНИЯ ПРИ ВЫБОРЕ НЕЗАГРУЖЕННОГО РЕГИОНА!!!
-         */
         @Override
         public void actionPerformed(ActionEvent event) {
-            //System.out.println("REGION!!!");
             String value = "";
+            doublePoint bottomLefht = null;
+            doublePoint upperRight = null;
             int regionIndex = commands.region.getSelectedIndex();
             switch(regionIndex) {
                 case 0:
                     value = "australia.jpg";
+                    bottomLefht = new doublePoint(43.73333, 112.93333);
+                    upperRight = new doublePoint(7.36667, 154.31667);
                     break;
                 case 1:
-                    value = "spain.jpg";
+                    value = "balkans.jpg";
+                    bottomLefht = new doublePoint(36.06667, 13.43333);
+                    upperRight = new doublePoint(48.16667, 29.88333);
                     break;
                 case 2:
-                    value = "";
+                    value = "china.jpg";
+                    bottomLefht = new doublePoint(17.7, 100.1);
+                    upperRight = new doublePoint(44.1, 131.35);
+                    break;
+                case 3:
+                    value = "india.jpg";
+                    bottomLefht = new doublePoint(5.36667, 65.4);
+                    upperRight = new doublePoint(31.08333, 92.58333);
+                    break;
+                case 4:
+                    value = "russia.jpg";
+                    bottomLefht = new doublePoint(52.86667, 28.83333);
+                    upperRight = new doublePoint(60.63333, 43.1);
+                    break;
+                case 5:
+                    value = "scandinavia.jpg";
+                    bottomLefht = new doublePoint(54.88333, 4.18333);
+                    upperRight = new doublePoint(71.31667, 41.3);
+                    break;
+                case 6:
+                    value = "usa.jpg";
+                    bottomLefht = new doublePoint(4.86667, 124.1);
+                    upperRight = new doublePoint(49.33333, 72.05);
                     break;
             }
-            map.setRegion(value);
+            map.setRegion(value, bottomLefht, upperRight); //X - широта, Y - долгота
             map.repaint();
+            commands.begin.setEnabled(false);
         }
     }
 
     class Command extends JPanel{
 
         private JLabel labelRegion = new JLabel("Выберите регион:");
-        private JComboBox region = new JComboBox(new String[] {"Австралия", "Регион2", "Регион3"});
+        private JComboBox region = new JComboBox(new String[] {"Австралия", "Балканы", "Китай", "Индия", "Россия",
+                "Скандинавия", "США"});
         private JLabel labelMode = new JLabel("Выберите режим:");
         private JComboBox mode = new JComboBox(new String[] {"По времени", "По точке"});
         private JToggleButton start = new JToggleButton("Выбрать стартовую точку");
@@ -201,11 +216,8 @@ public class MainWindow extends JFrame{
             begin.setSize(140, 20);
             begin.setLocation(57, 290);
             this.add(begin);
-            begin.setEnabled(false);
-        }
 
-        public void unlockBegin(){
-            begin.setEnabled(true);
+            begin.setEnabled(false);
         }
     }
 }
