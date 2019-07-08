@@ -2,7 +2,11 @@ package gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.LinkedList;
 import javax.swing.*;
+
+import algo.MoveBalloonAlgorithm;
+import dateStruct.Vertex;
 import dateStruct.doublePoint;
 
 public class MainWindow extends JFrame{
@@ -30,12 +34,10 @@ public class MainWindow extends JFrame{
     }
 
     class MapMouseAdapter extends MouseAdapter implements  MouseWheelListener{
-        Color PointColor;   //МОЖНО ЛИ ДОБАВИТЬ В PRIVATE???
         private int mouseX;
         private int mouseY;
 
         public MapMouseAdapter(){
-            PointColor = new Color(0, 13, 255);
             addMouseWheelListener(this);
         }
 
@@ -99,7 +101,36 @@ public class MainWindow extends JFrame{
             System.out.println(value);
 
 
-            //  map.setAlgorithmData();
+
+            LinkedList<Vertex> temp = null;
+            /*
+            тут нужно вызвать алгоритм и присвоить его temp
+             map.getStartRealCoordinate(); - возвращает координаты стартовой точки
+
+             остальные парметры за тобой
+
+
+            отрисовка работает
+            нужны методы
+            toString() для weather и time
+             */
+/*
+test
+            LinkedList<Vertex> temp = new LinkedList<Vertex>();
+            Vertex temp1 = new Vertex(new doublePoint(31.5, 135.87));
+            Vertex temp2 = new Vertex(new doublePoint(30.98, 137.97));
+            Vertex temp3 = new Vertex(new doublePoint(28.46, 137.43));
+
+            temp.addLast(temp1);
+            temp.addLast(temp2);
+            temp.addLast(temp3);
+*/
+
+            if(temp != null){
+                map.setAlgorithmDate(temp);
+            }else{
+                System.out.println("null LinkedList");
+            }
             map.repaint();
         }
     }

@@ -3,8 +3,11 @@ package gui;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+
+import dateStruct.Vertex;
 import dateStruct.doublePoint;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,9 +39,10 @@ public class Map extends JPanel {
     private double ScaleCoof;
     private doublePoint ScalePoint;
     private double ImageCoof;
-    int offsetX,offsetY;                //МОЖНО ЛИ ЗАНЕСТИ В PRIVATE???
+    private int offsetX,offsetY;
     private doublePoint bottomLefht = new doublePoint(43.73333, 112.93333); //значения для Австралии
     private doublePoint upperRight = new doublePoint(7.36667, 154.31667);;  //для загрузки по умолчанию
+    LinkedList<Vertex> BallonWay;
 
     /**
      * Конструктор класса
@@ -54,6 +58,7 @@ public class Map extends JPanel {
         setRegion(region, bottomLefht, upperRight);
         ScaleCoof = 1;
         offsetX = offsetY =0;
+        BallonWay = null;
     }
 
     /**
@@ -97,32 +102,32 @@ public class Map extends JPanel {
             ScaleCoof += coof;
             ScalePoint = new doublePoint(coord);
 
-            if(ScalePoint != null) {
-                double MoveMapCoofX = (ScalePoint.getX() / width); // тут изменить коэф смещения для большей плавности
-                double MoveMapCoofY = (ScalePoint.getY() / height);
 
-                if (MoveMapCoofX <= 0.6 && MoveMapCoofX >= 0.4) {
-                    MoveMapCoofX = 0.5;
-                    offsetX = (int) Math.round(width * MoveMapCoofX * (ScaleCoof - 1));
-                } else {
-                    offsetX = (int) Math.round(ScalePoint.getX() * MoveMapCoofX * ScaleCoof);
+            double MoveMapCoofX = (ScalePoint.getX() / width); // тут изменить коэф смещения для большей плавности
+            double MoveMapCoofY = (ScalePoint.getY() / height);
 
-                    if ((MapImage.getWidth(null) * ImageCoof * ScaleCoof - offsetX) < width) {
-                        offsetX = (int) Math.round((MapImage.getWidth(null) * ScaleCoof * ImageCoof - width));
-                    }
-                }
+            if (MoveMapCoofX <= 0.6 && MoveMapCoofX >= 0.4) {
+                MoveMapCoofX = 0.5;
+                offsetX = (int) Math.round(width * MoveMapCoofX * (ScaleCoof - 1));
+            } else {
+                offsetX = (int) Math.round(ScalePoint.getX() * MoveMapCoofX * ScaleCoof);
 
-                if (MoveMapCoofY <= 0.6 && MoveMapCoofY >= 0.4) {
-                    MoveMapCoofY = 0.5;
-                    offsetY = (int) Math.round(width * MoveMapCoofY * (ScaleCoof - 1));
-                } else {
-                    offsetY = (int) Math.round(ScalePoint.getY() * MoveMapCoofY * ScaleCoof);
-
-                    if ((MapImage.getHeight(null) * ScaleCoof * ImageCoof - offsetY) < height) {
-                        offsetY = (int) Math.round((MapImage.getHeight(null) * ScaleCoof * ImageCoof - height));
-                    }
+                if ((MapImage.getWidth(null) * ImageCoof * ScaleCoof - offsetX) < width) {
+                    offsetX = (int) Math.round((MapImage.getWidth(null) * ScaleCoof * ImageCoof - width));
                 }
             }
+
+            if (MoveMapCoofY <= 0.6 && MoveMapCoofY >= 0.4) {
+                MoveMapCoofY = 0.5;
+                offsetY = (int) Math.round(width * MoveMapCoofY * (ScaleCoof - 1));
+            } else {
+                offsetY = (int) Math.round(ScalePoint.getY() * MoveMapCoofY * ScaleCoof);
+
+                if ((MapImage.getHeight(null) * ScaleCoof * ImageCoof - offsetY) < height) {
+                    offsetY = (int) Math.round((MapImage.getHeight(null) * ScaleCoof * ImageCoof - height));
+                }
+            }
+
             repaint();
         }
     }
@@ -145,8 +150,8 @@ public class Map extends JPanel {
      * вычисление реальных координат в дробных градусах для стартовой точки
      * @return - реальные координаты стартовой точки
      */
-    public doublePoint getRealCoordinate(){
-        //коэффициенты показывают сколько приходится градусов на один пиксель
+    public doublePoint getStartRealCoordinate(){
+        //коэффициенты показывают сколько приходится градусов на один пиксель Map
         double coeffX = (bottomLefht.getX() - upperRight.getX()) / height;
         double coeffY = (upperRight.getY() - bottomLefht.getY()) / width;
         double x = upperRight.getX() + coeffX*StartPoint.getX();    //широта
@@ -172,9 +177,22 @@ public class Map extends JPanel {
     /**
      * РЕАЛИЗОВАТЬ!!!
      */
-    public  void setAlgorithmDate(){
+    public  void setAlgorithmDate(LinkedList<Vertex> date){
         grid = false;
+        BallonWay = date;
         // загрузка данных алгоритма
+        for (Vertex vert: date) {
+            if(vert.getMapCoordinate() == null){
+                System.out.println(vert.toString());
+
+                doublePoint temp = vert.getRealCoordinate();
+                doublePoint temp2 = getMapCoordinate(temp);
+                vert.setMapCoordinate(temp2);
+
+                System.out.println(vert.toString());
+            }
+        }
+
         repaint();
     }
 
@@ -214,7 +232,7 @@ public class Map extends JPanel {
     @Override
     public void paint(Graphics g) {
         g.drawImage(MapImage,
-                -offsetX,(int) -offsetY,
+                -offsetX, -offsetY,
                 (int)(MapImage.getWidth(null) * ScaleCoof *ImageCoof),
                 (int)(MapImage.getHeight(null) * ScaleCoof *ImageCoof),null);
 
@@ -233,32 +251,48 @@ public class Map extends JPanel {
             g.drawLine(0, height, width, height);
         }
 
+        int radius = 3;
+        g.setColor(PointColor);
 
-        if(StartPoint != null){
-            g.setColor(PointColor);
-            int radius = 3;
-            int X = (int) (StartPoint.getX() * ScaleCoof - offsetX - radius);
-            int Y = (int) (StartPoint.getY() * ScaleCoof - offsetY - radius);
 
-            //МОЖНО ЛИ УДАЛИТЬ ЗАКОММЕНЧЕННОЕ УСЛОВИЕ???
-            //if (isVisible(new doublePoint(X,Y))){
+        if(BallonWay!=null){
+            doublePoint prevPoint = null;
+            doublePoint temp = null;
+            for (Vertex vert: BallonWay) {
+                temp = vert.getMapCoordinate();
 
-            g.drawOval( X , Y ,2*radius,2*radius);
-            g.fillOval( X, Y,2*radius,2*radius);
-            // }
+                int X = (int) (temp.getX() * ScaleCoof - offsetX - radius);
+                int Y = (int) (temp.getY() * ScaleCoof - offsetY - radius);
+                g.drawOval( X , Y ,2*radius,2*radius);
+                g.fillOval( X, Y,2*radius,2*radius);
+                g.setColor(Color.BLACK);
+
+                g.setFont(new Font("Serif", Font.PLAIN, 10));
+                g.drawString("time", X -5, Y - 25);
+                g.drawString("weather", X -5, Y - 15);
+                g.drawString(vert.getRealCoordinate().toString(), X -5, Y - 5);
+
+                if(prevPoint == null){
+                    prevPoint = new doublePoint(X+radius,Y+radius);
+                    continue;
+                }
+                g.drawLine((int)prevPoint.getX(),(int)prevPoint.getY(),X+radius,Y+radius);
+
+            }
         }
 
+        if(StartPoint != null){
+
+
+            int X = (int) (StartPoint.getX() * ScaleCoof - offsetX - 1.5* radius);
+            int Y = (int) (StartPoint.getY() * ScaleCoof - offsetY - 1.5*radius);
+
+            g.drawOval( X , Y ,3*radius,3*radius);
+            g.fillOval( X, Y,3*radius,3*radius);
+        }
         /*
         Алгоритм отрисовки пути
          */
     }
 
-    /**
-     * ДЛЯ ЧЕГО???
-     * РЕАЛИЗОВАТЬ!!!
-     * @param p
-     */
-    private void drawPoint(doublePoint p){
-
-    }
 }

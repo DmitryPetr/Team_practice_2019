@@ -20,6 +20,8 @@ public class Vertex{
 
     public Vertex(doublePoint p1){
         RealCoordinate = p1;
+        MapCoordinate = null;
+        weatherInPoint = null;
     }
 
     public void setMapCoordinate(doublePoint mapCoordinate) {
@@ -43,8 +45,14 @@ public class Vertex{
     public String toString() {
         StringBuilder str = new StringBuilder();
         str.append("real coordinate:\n"+ RealCoordinate.toString());
-        str.append("map coordinate:\n"+ MapCoordinate.toString());
-        str.append("Weather parameter in this point:\n"+weatherInPoint.toString());
+        if (MapCoordinate != null){
+            str.append("map coordinate:\n"+ MapCoordinate.toString());
+        }
+
+        if (weatherInPoint != null){
+            str.append("Weather parameter in this point:\n"+weatherInPoint.toString());
+        }
+
         return str.toString();
     }
 }

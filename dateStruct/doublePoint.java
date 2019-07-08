@@ -24,8 +24,8 @@ public class doublePoint {
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        str.append("x: "+ x+ "\n");
-        str.append("y: "+ y+ "\n");
+        str.append("x: "+ x+ " ");
+        str.append("y: "+ y);
         return str.toString();
     }
 
