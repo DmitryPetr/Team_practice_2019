@@ -16,12 +16,10 @@ public class Vertex{
     private doublePoint RealCoordinate;
     private doublePoint MapCoordinate;
     private WeatherPrameters weatherInPoint;
-    private Vertex prevVertex;
 
 
-    public Vertex(doublePoint p1, Vertex prev){
+    public Vertex(doublePoint p1){
         RealCoordinate = p1;
-        prevVertex = prev;
     }
 
     public void setMapCoordinate(doublePoint mapCoordinate) {

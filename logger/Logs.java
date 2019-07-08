@@ -20,4 +20,11 @@ public class Logs{
         logger.addHandler(fileLog);
         logger.log(level, Message);
     }
+
+    static class Forms extends Formatter {
+        @Override
+        public  String format(LogRecord record){
+            return record.getLevel() + ":" + record.getMessage();
+        }
+    }
 }

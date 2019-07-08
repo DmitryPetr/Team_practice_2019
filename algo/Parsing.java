@@ -47,8 +47,8 @@ public class Parsing {
     private static final String format = "format=json";
     private String dataStart;
     private static final String timeReload = "tp=1";
-    HttpURLConnection connection = null;
-    String answser;
+    private HttpURLConnection connection = null;
+    private String answser;
 
     public void setDataStart(String dataStart) {
         StringBuilder str = new StringBuilder("date=");

@@ -2,6 +2,7 @@ package algo;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.logging.Level;
 
 import logger.Logs;
@@ -94,11 +95,13 @@ public class MoveBalloonAlgorithm {
     /**
      * Метод AlgorithmTime - алгоритм вычисления конечной точки, при задании пользователем варианта программы "Полёт по времени"
      */
-    public Vertex AlgorithmTime(doublePoint startPoint, String startData, int startHour, Time TimeInAir, int step) throws IOException {
+    public LinkedList<Vertex> AlgorithmTime(doublePoint startPoint, String startData, int startHour, Time TimeInAir, int step) throws IOException {
         Logs.writeLog(" -- Start alhorithm -- \n", Level.INFO);
         Parsing pars = Parsing.getInstance(startData, step, startHour);
         doublePoint tmp = startPoint;
-        Vertex vert = new Vertex(tmp, null);
+        Vertex vert = new Vertex(tmp);
+        LinkedList<Vertex> List = new LinkedList<>();
+        List.addLast(vert);
         while (TimeInAir.TimeNotOut()) {
             if (!coordsIsCorrect(tmp, ControlPoint, sizeMap)) {
                 Logs.writeLog(" -!- Error: out of bounds   -!- \n", Level.WARNING);
@@ -122,15 +125,15 @@ public class MoveBalloonAlgorithm {
                     return null;
                 }
                 Logs.writeLog(" -- The successful relocation of the balloon --\n", Level.INFO);
-                Vertex newVert = new Vertex(tmp, vert);
-                vert = newVert;
+                vert = new Vertex(tmp);
+                List.addLast(vert);
             } else {
                 Logs.writeLog(" -!- An error retrieving the parameters -!- \n", Level.WARNING);
                 return null;
             }
         }
         Logs.writeLog(" -- A successful exit of the algorithm -- \n\n", Level.INFO);
-        return vert;
+        return List;
     }
 
     /**
@@ -150,11 +153,13 @@ public class MoveBalloonAlgorithm {
     /**
      * Метод AlgorithmEndPoint - алгоритм вычисления конечной точки, при задании пользователем варианта программы "Полёт к конечной координате"
      */
-    public Vertex AlgorithmEndPoint(doublePoint startPoint, doublePoint endPoint, String startData, int startHour, int step, double SizeEpsilon) throws IOException {
+    public LinkedList<Vertex> AlgorithmEndPoint(doublePoint startPoint, doublePoint endPoint, String startData, int startHour, int step, double SizeEpsilon) throws IOException {
         Logs.writeLog(" -- Start alhorithm -- \n", Level.INFO);
         Parsing pars = Parsing.getInstance(startData, step, startHour);
         doublePoint tmp = startPoint;
-        Vertex vert = new Vertex(tmp, null);
+        Vertex vert = new Vertex(tmp);
+        LinkedList<Vertex> List = new LinkedList<>();
+        List.addLast(vert);
         while (isNotEnd(tmp, endPoint, SizeEpsilon)) {
             if (!coordsIsCorrect(tmp, ControlPoint, sizeMap)) {
                 Logs.writeLog(" -!- Error: out of bounds   -!- \n", Level.WARNING);
@@ -173,14 +178,14 @@ public class MoveBalloonAlgorithm {
                     return null;
                 }
                 Logs.writeLog(" -- The successful relocation of the balloon --\n", Level.INFO);
-                Vertex newVert = new Vertex(tmp, vert);
-                vert = newVert;
+                vert = new Vertex(tmp);
+                List.addLast(vert);
             } else {
                 Logs.writeLog(" -!- An error retrieving the parameters -!- \n", Level.WARNING);
                 return null;
             }
         }
         Logs.writeLog(" -- A successful exit of the algorithm -- \n\n", Level.INFO);
-        return vert;
+        return List;
     }
 }
