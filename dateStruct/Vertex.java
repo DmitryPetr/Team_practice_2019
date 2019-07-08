@@ -1,58 +1,68 @@
 package dateStruct;
 
 /**
- * Структура данных для алгоритма
+ * Структура хранения данных для алгоритма
  * RealCoordinate - координаты в реальном мире
  * MapCoordinate - координаты на карте
  * PointWeather - Погода в точке
  */
-
-/*
-* Добавить вычисление map координат
-* Можно в конструктор, но лучше через сеттер или наоборот, реальные кооординаты добавлять через сеттер, а map координаты через конструктор
-* */
-
 public class Vertex{
-    private doublePoint RealCoordinate;
+    private final doublePoint RealCoordinate;
     private doublePoint MapCoordinate;
-    private WeatherPrameters weatherInPoint;
+    private WeatherParameters weatherInPoint;
 
-
-    public Vertex(doublePoint p1){
-        RealCoordinate = p1;
+    public Vertex(doublePoint coord){
+        RealCoordinate = coord;
         MapCoordinate = null;
         weatherInPoint = null;
     }
 
+    /**
+     * устанавливает координаты map координаты
+     * @param mapCoordinate
+     */
     public void setMapCoordinate(doublePoint mapCoordinate) {
         MapCoordinate = mapCoordinate;
     }
 
-    public void setWeatherInPoint(WeatherPrameters weatherInPoint) {
+    /**
+     * Устаналивает значение погоды в точке
+     * @param weatherInPoint
+     */
+    public void setWeatherInPoint(WeatherParameters weatherInPoint) {
         this.weatherInPoint = weatherInPoint;
     }
 
+    /**
+     * возвращает реальный координаты точки
+     * @return
+     */
     public doublePoint getRealCoordinate(){
         return RealCoordinate;
     }
 
+    /**
+     * возвращает map координаты точки
+     * @return
+     */
     public doublePoint getMapCoordinate(){
         return  MapCoordinate;
     }
 
+    /**
+     * возвращает текущую погоду
+     * @return
+     */
+    public WeatherParameters getWeatherInPoint(){
+        return  weatherInPoint;
+    }
 
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        str.append("real coordinate:\n"+ RealCoordinate.toString());
-        if (MapCoordinate != null){
-            str.append("map coordinate:\n"+ MapCoordinate.toString());
-        }
-
-        if (weatherInPoint != null){
-            str.append("Weather parameter in this point:\n"+weatherInPoint.toString());
-        }
-
+        str.append("real coordinate:\n").append(RealCoordinate.toString());
+        if (MapCoordinate != null)  str.append("map coordinate:\n").append(MapCoordinate.toString());
+        if (weatherInPoint != null) str.append("Weather parameter in this point:\n").append(weatherInPoint.toString());
         return str.toString();
     }
 }

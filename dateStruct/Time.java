@@ -38,13 +38,7 @@ public class Time {
         //Logs.writeLog(" -- In TimeNotOut: \n", Level.INFO);
         //System.out.println("Month: "+month+"\nDay: "+day+"\nHour: "+hour+"\n");
 
-        if(month==0&&day==0&&hour==0){
-           // System.out.println("In TimeNotOut - false\n");
-
-            return false;}
-        else{
-           // System.out.println("In TimeNotOut - true\n");
-            return true;}
+        return month != 0 || day != 0 || hour != 0;
     }
 
     public int getDay() { return day; }
