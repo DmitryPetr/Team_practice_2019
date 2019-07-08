@@ -37,8 +37,8 @@ public class Map extends JPanel {
     private doublePoint ScalePoint;
     private double ImageCoof;
     int offsetX,offsetY;                //МОЖНО ЛИ ЗАНЕСТИ В PRIVATE???
-    private doublePoint bottomLefht;
-    private doublePoint upperRight;
+    private doublePoint bottomLefht = new doublePoint(43.73333, 112.93333); //значения для Австралии
+    private doublePoint upperRight = new doublePoint(7.36667, 154.31667);;  //для загрузки по умолчанию
 
     /**
      * Конструктор класса
@@ -142,17 +142,30 @@ public class Map extends JPanel {
     }
 
     /**
-     * ЕЩЁ РАЗ ПРОВЕРИТЬ КОРРЕКТНОСТЬ ПОДСЧЁТА!!!
-     * ДОБАВИТЬ УЧЁТ МАСШТАБА(СЕЙЧАС РАБОТАЕТ ПРАВИЛЬНО КОГДА НЕТ ПРИБЛИЖЕНИЯ)!!!
      * вычисление реальных координат в дробных градусах для стартовой точки
      * @return - реальные координаты стартовой точки
      */
-    public doublePoint getRealCoordiante(){
+    public doublePoint getRealCoordinate(){
         //коэффициенты показывают сколько приходится градусов на один пиксель
         double coeffX = (bottomLefht.getX() - upperRight.getX()) / height;
         double coeffY = (upperRight.getY() - bottomLefht.getY()) / width;
         double x = upperRight.getX() + coeffX*StartPoint.getX();    //широта
         double y = bottomLefht.getY() + coeffY*StartPoint.getY();   //долгота
+        return new doublePoint(x, y);
+    }
+
+    /**
+     * ЗДЕСБ КООРДИНАТЫ ВОЗВРАЩАЮТСЯ В DOUBLE!!! НА КАРТЕ У НАС INT, ВОЗМОЖНА ПОГРЕШНОСТЬ В 1 ПИКСЕЛЬ!!!
+     * ПРИМЕНИТЬ Math.round(x) и Math.round(y), ЛИБО ПЕРЕД ВОЗВРАТОМ, ЛИБО УЖЕ ТАМ, ОТКУДА БУДЕТ ВЫЗВАН МЕТОД!!!
+     * Вычисление координат на карте приложения без масштабирования
+     * @param realCoordinate - реальные географические координаты в дробных градусах
+     * @return - координаты на карте в приложении
+     */
+    public doublePoint getMapCoordinate(doublePoint realCoordinate){
+        double coeffX = (bottomLefht.getX() - upperRight.getX()) / height;
+        double coeffY = (upperRight.getY() - bottomLefht.getY()) / width;
+        double x = (realCoordinate.getX() - upperRight.getX()) / coeffX;
+        double y = (realCoordinate.getY() - bottomLefht.getY()) / coeffY;
         return new doublePoint(x, y);
     }
 
