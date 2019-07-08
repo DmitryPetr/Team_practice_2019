@@ -31,6 +31,27 @@ public class Time {
         this.hour = hour;
     }
 
+    public Time(){
+        this.year = 0;
+        this.month = 0;
+        this.day = 0;
+        this.hour = 0;
+    }
+
+    public Time(Time newTime){
+        this.year = newTime.year;
+        this.month = newTime.month;
+        this.day = newTime.day;
+        this.hour = newTime.hour;
+    }
+
+    public void setTime(Time newTime){
+        this.year = newTime.year;
+        this.month = newTime.month;
+        this.day = newTime.day;
+        this.hour = newTime.hour;
+    }
+
     /**
      * Метод TimeNotOut необходим для работы алгоритме в режиме полёта по времени, который вычисляет "закончилось ли время полёта?"
      * */
@@ -60,4 +81,14 @@ public class Time {
     public void setHour(int hour) { this.hour = hour; }
 
     public void setMonth(int month) {this.month = month;  }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        str.append("Month:\n"+ month);
+        str.append("Day:\n"+day);
+        str.append("Hour:\n"+hour);
+        return str.toString();
+    }
+
 }

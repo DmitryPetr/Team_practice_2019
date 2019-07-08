@@ -15,23 +15,25 @@ public class MoveBalloonAlgorithm {
      */
     private doublePoint ControlPoint;
     private static MoveBalloonAlgorithm instance;
-    private final double sizeMap;
+    private final double sizeMapLongitude;
+    private final double sizeMapLatitude;
     private final int scale; /*Необходимо добавить в проект*/
 
-    public static MoveBalloonAlgorithm getInstance(doublePoint СontrolPoint, double size, int scale) throws IOException {
+    public static MoveBalloonAlgorithm getInstance(doublePoint СontrolPoint, double sizeLongitude, double sizeLatitude, int scale) throws IOException {
         if (instance == null) {
             Date date = new Date();
             Logs.writeLog(" -- " + date.toString() + "--\n", Level.INFO);
             Logs.writeLog(" -- Create first instance of algorithm! -- \n", Level.INFO);
-            instance = new MoveBalloonAlgorithm(СontrolPoint, size, scale);
+            instance = new MoveBalloonAlgorithm(СontrolPoint, sizeLongitude , sizeLatitude, scale);
         }
         Logs.writeLog(" -- The request instance of the algorithm! -- \n", Level.INFO);
         return instance;
     }
 
-    private MoveBalloonAlgorithm(doublePoint СontrolPoint, double size, int scale) throws IOException {
+    private MoveBalloonAlgorithm(doublePoint СontrolPoint,  double sizeLongitude, double sizeLatitude, int scale) throws IOException {
         this.ControlPoint = СontrolPoint;
-        sizeMap = size;
+        sizeMapLongitude = sizeLongitude;
+        sizeMapLatitude = sizeLatitude;
         this.scale = scale;
         Logs.writeLog(" -- Create MoveBalloonAlgorithm instance successful --\n", Level.INFO);
     }
@@ -55,9 +57,9 @@ public class MoveBalloonAlgorithm {
      * нужна ли она? может нужно делать проверку при отрисовке
      *
      */
-    private boolean coordsIsCorrect(doublePoint tmp, doublePoint C_Point, double size) {
-        if (tmp.getX() > C_Point.getX() && tmp.getX() < C_Point.getX() + size) {
-            if (tmp.getY() > C_Point.getY() && tmp.getY() < C_Point.getY() + size) {
+    private boolean coordsIsCorrect(doublePoint tmp, doublePoint C_Point, double sizeLongitude,double sizeLatitude) {
+        if (tmp.getX() > C_Point.getX() && tmp.getX() < C_Point.getX() + sizeLongitude){
+            if (tmp.getY() > C_Point.getY() && tmp.getY() < C_Point.getY() + sizeLatitude) {
                 return true;
             } else {
                 return false;
@@ -99,23 +101,28 @@ public class MoveBalloonAlgorithm {
         Logs.writeLog(" -- Start alhorithm -- \n", Level.INFO);
         Parsing pars = Parsing.getInstance(startData, step, startHour);
         doublePoint tmp = startPoint;
-        Vertex vert = new Vertex(tmp);
+        Vertex vert;
+        Time Measuring = new Time(startData);
         LinkedList<Vertex> List = new LinkedList<>();
-        List.addLast(vert);
         while (TimeInAir.TimeNotOut()) {
-            if (!coordsIsCorrect(tmp, ControlPoint, sizeMap)) {
+            if (!coordsIsCorrect(tmp, ControlPoint, sizeMapLongitude, sizeMapLatitude)) {
                 Logs.writeLog(" -!- Error: out of bounds   -!- \n", Level.WARNING);
-                return null;
+                return List;
+            } else {
+                vert = new Vertex(tmp, Measuring);
+                List.addLast(vert);
             }
             pars.setLocation(tmp.getX(), tmp.getY());
             Logs.writeLog(" -- Getting started --\n", Level.INFO);
             WeatherPrameters parameters = pars.getParameters();
+            Measuring = pars.getMeasuringCount();
             int res = methodTimeOut(TimeInAir, step);
             if (res <= 0) {
                 Logs.writeLog(" -- So little step! --\n", Level.WARNING);
                 return null;
             }
             if (parameters != null) {
+
                 Logs.writeLog(" -- Successful receipt of the parameters --\n", Level.INFO);
                 vert.setWeatherInPoint(parameters);
                 Logs.writeLog(" -- Start moving the balloon --\n", Level.INFO);
@@ -125,8 +132,6 @@ public class MoveBalloonAlgorithm {
                     return null;
                 }
                 Logs.writeLog(" -- The successful relocation of the balloon --\n", Level.INFO);
-                vert = new Vertex(tmp);
-                List.addLast(vert);
             } else {
                 Logs.writeLog(" -!- An error retrieving the parameters -!- \n", Level.WARNING);
                 return null;
@@ -145,7 +150,7 @@ public class MoveBalloonAlgorithm {
         double Control_x = End.getX() - (SizeEpsilon / 2);
         double Control_y = End.getY() - (SizeEpsilon / 2);
         doublePoint C_Point = new doublePoint(Control_x, Control_y);
-        if (!coordsIsCorrect(tmp, C_Point, SizeEpsilon)) return true;
+        if (!coordsIsCorrect(tmp, C_Point, SizeEpsilon, SizeEpsilon)) return true;
         else return false;
     }
 
@@ -157,17 +162,21 @@ public class MoveBalloonAlgorithm {
         Logs.writeLog(" -- Start alhorithm -- \n", Level.INFO);
         Parsing pars = Parsing.getInstance(startData, step, startHour);
         doublePoint tmp = startPoint;
-        Vertex vert = new Vertex(tmp);
+        Vertex vert;
+        Time Measuring = new Time(startData);
         LinkedList<Vertex> List = new LinkedList<>();
-        List.addLast(vert);
         while (isNotEnd(tmp, endPoint, SizeEpsilon)) {
-            if (!coordsIsCorrect(tmp, ControlPoint, sizeMap)) {
+            if (!coordsIsCorrect(tmp, ControlPoint, sizeMapLongitude, sizeMapLatitude)) {
                 Logs.writeLog(" -!- Error: out of bounds   -!- \n", Level.WARNING);
-                return null;
+                return List;
+            }else {
+                vert = new Vertex(tmp, Measuring);
+                List.addLast(vert);
             }
             pars.setLocation(tmp.getX(), tmp.getY());
             Logs.writeLog(" -- Getting started --\n", Level.INFO);
             WeatherPrameters parameters = pars.getParameters();
+            Measuring = pars.getMeasuringCount();
             if (parameters != null) {
                 Logs.writeLog(" -- Successful receipt of the parameters --\n", Level.INFO);
                 vert.setWeatherInPoint(parameters);
@@ -178,8 +187,6 @@ public class MoveBalloonAlgorithm {
                     return null;
                 }
                 Logs.writeLog(" -- The successful relocation of the balloon --\n", Level.INFO);
-                vert = new Vertex(tmp);
-                List.addLast(vert);
             } else {
                 Logs.writeLog(" -!- An error retrieving the parameters -!- \n", Level.WARNING);
                 return null;
