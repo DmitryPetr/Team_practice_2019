@@ -4,25 +4,21 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.logging.Level;
-import java.awt.*;
-import java.math.*;
-import java.io.File;
-import java.io.FileWriter;
 
 import logger.Logs;
 import dateStruct.*;
-import dateStruct.Point;
+import dateStruct.doublePoint;
 
 public class MoveBalloonAlgorithm {
     /**
      * Приватный конструктор и метод getInstance реализуют паттерн Singleton
      */
-    private Point ControlPoint;
+    private doublePoint ControlPoint;
     private static MoveBalloonAlgorithm instance;
     private final double sizeMap;
     private final int scale; /*Необходимо добавить в проект*/
 
-    public static MoveBalloonAlgorithm getInstance(Point СontrolPoint, double size, int scale) throws IOException {
+    public static MoveBalloonAlgorithm getInstance(doublePoint СontrolPoint, double size, int scale) throws IOException {
         if (instance == null) {
             Date date = new Date();
             Logs.writeLog(" -- " + date.toString() + "--\n", Level.INFO);
@@ -33,7 +29,7 @@ public class MoveBalloonAlgorithm {
         return instance;
     }
 
-    private MoveBalloonAlgorithm(Point СontrolPoint, double size, int scale) throws IOException {
+    private MoveBalloonAlgorithm(doublePoint СontrolPoint, double size, int scale) throws IOException {
         this.ControlPoint = СontrolPoint;
         sizeMap = size;
         this.scale = scale;
@@ -43,14 +39,14 @@ public class MoveBalloonAlgorithm {
     /**
      * Метод moveBalloon - метод, который вычисляет координаты следующей точки
      */
-    private Point moveBalloon(WeatherPrameters parameters, Point startPoint, int step) {
+    private doublePoint moveBalloon(WeatherPrameters parameters, doublePoint startPoint, int step) {
         if (scale == 0) return null;
         /*
          * Посмотреть корректно ли строятся координаты!!!
          * */
         double x = startPoint.getX() + Math.cos(parameters.getWinddirDegree()) * (parameters.getWindGustKmph() * step / scale);
         double y = startPoint.getY() + Math.sin(parameters.getWinddirDegree()) * (parameters.getWindGustKmph() * step / scale);
-        Point result = new Point(x, y);
+        doublePoint result = new doublePoint(x, y);
         return result;
     }
 
@@ -59,7 +55,7 @@ public class MoveBalloonAlgorithm {
      * нужна ли она? может нужно делать проверку при отрисовке
      *
      */
-    private boolean coordsIsCorrect(Point tmp, Point C_Point, double size) {
+    private boolean coordsIsCorrect(doublePoint tmp, doublePoint C_Point, double size) {
         if (tmp.getX() > C_Point.getX() && tmp.getX() < C_Point.getX() + size) {
             if (tmp.getY() > C_Point.getY() && tmp.getY() < C_Point.getY() + size) {
                 return true;
@@ -99,10 +95,10 @@ public class MoveBalloonAlgorithm {
     /**
      * Метод AlgorithmTime - алгоритм вычисления конечной точки, при задании пользователем варианта программы "Полёт по времени"
      */
-    public LinkedList<Vertex> AlgorithmTime(Point startPoint, String startData, int startHour, Time TimeInAir, int step) throws IOException {
+    public LinkedList<Vertex> AlgorithmTime(doublePoint startPoint, String startData, int startHour, Time TimeInAir, int step) throws IOException {
         Logs.writeLog(" -- Start alhorithm -- \n", Level.INFO);
         Parsing pars = Parsing.getInstance(startData, step, startHour);
-        Point tmp = startPoint;
+        doublePoint tmp = startPoint;
         Vertex vert = new Vertex(tmp);
         LinkedList<Vertex> List = new LinkedList<>();
         List.addLast(vert);
@@ -144,11 +140,11 @@ public class MoveBalloonAlgorithm {
      * Метод isNotEnd - метод, проверяющий достиг ли алгоритм конечной точки в вариантре программы "Полёт к конечной координате",
      * причём равенство конца вычисляется с учётом какой то области
      */
-    private boolean isNotEnd(Point tmp, Point End, double SizeEpsilon) {
+    private boolean isNotEnd(doublePoint tmp, doublePoint End, double SizeEpsilon) {
         //System.out.println(SizeEpsilon/2);
         double Control_x = End.getX() - (SizeEpsilon / 2);
         double Control_y = End.getY() - (SizeEpsilon / 2);
-        Point C_Point = new Point(Control_x, Control_y);
+        doublePoint C_Point = new doublePoint(Control_x, Control_y);
         if (!coordsIsCorrect(tmp, C_Point, SizeEpsilon)) return true;
         else return false;
     }
@@ -157,10 +153,10 @@ public class MoveBalloonAlgorithm {
     /**
      * Метод AlgorithmEndPoint - алгоритм вычисления конечной точки, при задании пользователем варианта программы "Полёт к конечной координате"
      */
-    public LinkedList<Vertex> AlgorithmEndPoint(Point startPoint, Point endPoint, String startData, int startHour, int step, double SizeEpsilon) throws IOException {
+    public LinkedList<Vertex> AlgorithmEndPoint(doublePoint startPoint, doublePoint endPoint, String startData, int startHour, int step, double SizeEpsilon) throws IOException {
         Logs.writeLog(" -- Start alhorithm -- \n", Level.INFO);
         Parsing pars = Parsing.getInstance(startData, step, startHour);
-        Point tmp = startPoint;
+        doublePoint tmp = startPoint;
         Vertex vert = new Vertex(tmp);
         LinkedList<Vertex> List = new LinkedList<>();
         List.addLast(vert);

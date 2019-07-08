@@ -13,16 +13,16 @@ package dateStruct;
 * */
 
 public class Vertex{
-    private Point RealCoordinate;
-    private Point MapCoordinate;
+    private doublePoint RealCoordinate;
+    private doublePoint MapCoordinate;
     private WeatherPrameters weatherInPoint;
 
 
-    public Vertex(Point p1){
+    public Vertex(doublePoint p1){
         RealCoordinate = p1;
     }
 
-    public void setMapCoordinate(Point mapCoordinate) {
+    public void setMapCoordinate(doublePoint mapCoordinate) {
         MapCoordinate = mapCoordinate;
     }
 
@@ -30,11 +30,11 @@ public class Vertex{
         this.weatherInPoint = weatherInPoint;
     }
 
-    public Point getRealCoordinate(){
+    public doublePoint getRealCoordinate(){
         return RealCoordinate;
     }
 
-    public Point getMapCoordinate(){
+    public doublePoint getMapCoordinate(){
         return  MapCoordinate;
     }
 
