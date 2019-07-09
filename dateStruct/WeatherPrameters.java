@@ -25,7 +25,7 @@ public class WeatherPrameters {
     public String toString() {
         StringBuilder str = new StringBuilder();
         str.append("wind agle: "+ WinddirDegree + "\n");
-        str.append("wind speed: "+ WinddirDegree + "\n");
+        str.append("wind speed: "+ WindGustKmph + "\n");
         return  str.toString();
     }
 

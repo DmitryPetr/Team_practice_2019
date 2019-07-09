@@ -16,15 +16,9 @@ public class Vertex{
     private doublePoint RealCoordinate;
     private doublePoint MapCoordinate;
     private WeatherPrameters weatherInPoint;
-    private Time MeasuringTime;
 
-
-    public void setMeasuringTime(Time measuringTime) {
-        MeasuringTime = measuringTime;
-    }
-    public Vertex(doublePoint p1, Time measuringTime){
+    public Vertex(doublePoint p1){
         RealCoordinate = p1;
-
     }
 
     public void setMapCoordinate(doublePoint mapCoordinate) {
@@ -47,9 +41,9 @@ public class Vertex{
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        str.append("real coordinate:\n"+ RealCoordinate.toString());
-        str.append("map coordinate:\n"+ MapCoordinate.toString());
-        str.append("Weather parameter in this point:\n"+weatherInPoint.toString());
+        str.append("real coordinate:\n"+ RealCoordinate.toString()+"\n");
+//        str.append("map coordinate:\n"+ MapCoordinate.toString());
+        str.append("Weather parameter in this point:\n"+weatherInPoint.toString()+"\n");
         return str.toString();
     }
 }

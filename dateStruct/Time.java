@@ -31,40 +31,13 @@ public class Time {
         this.hour = hour;
     }
 
-    public Time(){
-        this.year = 0;
-        this.month = 0;
-        this.day = 0;
-        this.hour = 0;
-    }
-
-    public Time(Time newTime){
-        this.year = newTime.year;
-        this.month = newTime.month;
-        this.day = newTime.day;
-        this.hour = newTime.hour;
-    }
-
-    public void setTime(Time newTime){
-        this.year = newTime.year;
-        this.month = newTime.month;
-        this.day = newTime.day;
-        this.hour = newTime.hour;
-    }
-
     /**
      * Метод TimeNotOut необходим для работы алгоритме в режиме полёта по времени, который вычисляет "закончилось ли время полёта?"
      * */
     public boolean TimeNotOut() throws IOException {
-        //Logs.writeLog(" -- In TimeNotOut: \n", Level.INFO);
-        //System.out.println("Month: "+month+"\nDay: "+day+"\nHour: "+hour+"\n");
-
         if(month==0&&day==0&&hour==0){
-            // System.out.println("In TimeNotOut - false\n");
-
             return false;}
         else{
-            // System.out.println("In TimeNotOut - true\n");
             return true;}
     }
 
