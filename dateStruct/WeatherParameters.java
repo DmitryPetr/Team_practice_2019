@@ -1,14 +1,14 @@
 package dateStruct;
 
-public class WeatherPrameters {
+public class WeatherParameters {
        /**
         * WindGustKmph - Порыв ветра в километрах в час
         * WinddirDegree - Направление ветра в градусах
         * */
-    private int WindGustKmph;
-    private int WinddirDegree;
+    private final int WindGustKmph;
+    private final int WinddirDegree;
 
-    public WeatherPrameters(int input_WindGustKmph, int input_WinddirDegree){
+    public WeatherParameters(int input_WindGustKmph, int input_WinddirDegree){
         WindGustKmph = input_WindGustKmph;
         WinddirDegree = input_WinddirDegree;
     }
@@ -23,11 +23,7 @@ public class WeatherPrameters {
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder();
-        str.append("wind agle: "+ WinddirDegree + "\n");
-        str.append("wind speed: "+ WindGustKmph + "\n");
-        return  str.toString();
+
+        return "angle: " + WinddirDegree + "speed: " + WinddirDegree;
     }
-
-
 }

@@ -3,7 +3,6 @@ package algo;
 import java.io.*;
 import java.net.*;
 import java.util.logging.Level;
-import java.io.IOException;
 
 import logger.Logs;
 import dateStruct.*;
@@ -36,6 +35,7 @@ public class Parsing {
         Logs.writeLog(" -- Create parsing class instance successful --\n", Level.INFO);
     }
 
+
     public void setDataStart(String dataStart) {
         StringBuilder str = new StringBuilder("date=");
         this.dataStart = str.append(dataStart).toString();
@@ -43,7 +43,7 @@ public class Parsing {
 
     public void setLocation(double x, double y) {
         StringBuilder str = new StringBuilder("q=");
-        this.location = str.append(x + "," + y).toString();
+        this.location = str.append(x).append(",").append(y).toString();
     }
 
     public void setLocation(String location) {
@@ -55,7 +55,7 @@ public class Parsing {
      * Отравление HTTP запроса на сервер API для получения необходимой информации
      */
     private void getMesWeather() throws IOException {
-        String request = new String(source + key + "&" + location + "&" + format + "&" + dataStart + "&" + timeReload);
+        String request = source + key + "&" + location + "&" + format + "&" + dataStart + "&" + timeReload;
 
         try {
             connection = (HttpURLConnection) new URL(request).openConnection();
@@ -70,12 +70,12 @@ public class Parsing {
                 String line;
 
                 while ((line = in.readLine()) != null) {
-                    sb.append(line + "\n");
+                    sb.append(line).append("\n");
                 }
             }else{
                 Logs.writeLog(" -- Fail" + connection.getResponseCode() + ", " + connection.getResponseMessage() + " --\n", Level.WARNING);
             }
-            answser = sb.toString();
+            answer = sb.toString();
         } catch (Throwable cause) {
             Logs.writeLog(" !--! Fatal  error sending HTTP request! !--!\n", Level.SEVERE);
             cause.printStackTrace();
@@ -88,7 +88,7 @@ public class Parsing {
     /**
      * Метод getParameters - метода, осуществяющий получение данных о погоде путём отправления HTTTP запроса и осуществяющий парсинг ответа, в случае успеха
      */
-    public WeatherPrameters getParameters() throws IOException {
+    public WeatherParameters getParameters() throws IOException {
 
         if (countTime.getMonth() > 7 && countTime.getDay() > 4) {
             Logs.writeLog(" -- Error, out of available time! --\n", Level.WARNING);
@@ -101,35 +101,35 @@ public class Parsing {
         if (countTime.getHour() >= 24) {
             countTime.setDay(countTime.getDay() + 1);
             countTime.setHour(countTime.getHour() - 24);
-            String dataNext = new String(countTime.getYear() + "-" + countTime.getMonth() + "-" + countTime.getDay());
+            String dataNext = countTime.getYear() + "-" + countTime.getMonth() + "-" + countTime.getDay();
             setDataStart(dataNext);
         }
 
         if (countTime.getMonth() == 5 && countTime.getDay() >= 31 || countTime.getMonth() == 6 && countTime.getDay() >= 30) {
             countTime.setMonth(countTime.getMonth() + 1);
             countTime.setDay(1);
-            String dataNext = new String(countTime.getYear() + "-" + countTime.getMonth() + "-" + countTime.getDay());
+            String dataNext = countTime.getYear() + "-" + countTime.getMonth() + "-" + countTime.getDay();
             setDataStart(dataNext);
         }
 
         if (countTime.getHour() < 24) {
-            answser = "";
+            answer = "";
             getMesWeather();
             String find = "\"time\":\"" + (countTime.getHour() * 100) + "\"";
-            int index = answser.indexOf(find);
+            int index = answer.indexOf(find);
 
             if (index < 0) {
                 Logs.writeLog(" -- Error: unable to find any matching weather location to the query submitted! --\n", Level.WARNING);
                 return null;
             }
-            answser = answser.substring(index);
-            index = answser.indexOf("windspeedKmph");
+            answer = answer.substring(index);
+            index = answer.indexOf("windspeedKmph");
             index += 16;
 
             StringBuilder strBuf = new StringBuilder();
             for (int i = index; i < index + 3; i++) {
-                if (Character.isDigit(answser.charAt(i))) {
-                    strBuf.append(answser.charAt(i));
+                if (Character.isDigit(answer.charAt(i))) {
+                    strBuf.append(answer.charAt(i));
                 }
             }
 
@@ -137,13 +137,13 @@ public class Parsing {
             index += 21;
             strBuf.setLength(0);
             for (int i = index; i < index + 3; i++) {
-                if (Character.isDigit(answser.charAt(i))) {
-                    strBuf.append(answser.charAt(i));
+                if (Character.isDigit(answer.charAt(i))) {
+                    strBuf.append(answer.charAt(i));
                 }
             }
 
             int parameter2 = Integer.parseInt(strBuf.toString());
-            WeatherPrameters result = new WeatherPrameters(parameter1, parameter2);
+            WeatherParameters result = new WeatherParameters(parameter1, parameter2);
             countTime.setHour(countTime.getHour() + step);
             return result;
         }

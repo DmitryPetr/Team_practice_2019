@@ -1,5 +1,8 @@
 package dateStruct;
 
+/**
+ * стуктура точка основанная на double
+ */
 public class doublePoint {
     private double x;
     private double y;
@@ -23,10 +26,7 @@ public class doublePoint {
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder();
-        str.append("x: "+ x+ " ");
-        str.append("y: "+ y);
-        return str.toString();
+        return "X: "+x+" Y: "+y;
     }
 
 }
