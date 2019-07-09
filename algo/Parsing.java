@@ -24,7 +24,7 @@ public class Parsing {
     private String dataStart;
     private static final String timeReload = "tp=1";
     private HttpURLConnection connection = null;
-    private String answser;
+    private String answer;
     private int step;
     private Time countTime;
 

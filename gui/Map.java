@@ -157,11 +157,11 @@ public class Map extends JPanel {
         return new doublePoint(x, y);
     }
 
-    public doublePoint getBottomLefht(){return bottomLefht;}
+    public doublePoint getBottomLefht(){return bottomLeft;}
 
     public doublePoint getUpperRight(){return upperRight;}
 
-    public void setNullWay() { BallonWay = null;}
+    public void setNullWay() { BalloonWay = null;}
 
     /**
 

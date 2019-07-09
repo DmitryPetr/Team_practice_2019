@@ -1,12 +1,14 @@
 package algo;
 
+import dateStruct.Time;
+import dateStruct.Vertex;
+import dateStruct.WeatherParameters;
+import dateStruct.doublePoint;
+import logger.Logs;
+
 import java.io.IOException;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.logging.Level;
-
-import logger.Logs;
-import dateStruct.*;
 
 public class MoveBalloonAlgorithm {
 
@@ -61,6 +63,7 @@ public class MoveBalloonAlgorithm {
         }
     }
 
+
     /**
      * Метод coordsLongitudeIsCorrect - метод, который проверяет выход за пределы долготы на карте
      */
@@ -110,18 +113,19 @@ public class MoveBalloonAlgorithm {
         Logs.writeLog(" -- Start alhorithm -- \n", Level.INFO);
         Parsing pars = new Parsing(startData, step, startHour);
         doublePoint tmp = startPoint;
-        Vertex vert;
+        Vertex vertex;
         LinkedList<Vertex> List = new LinkedList<>();
 
         while (TimeInAir.TimeNotOut()) {
-            
+            System.out.println("NEXT STEP!"); //ДЛЯ ПРОВЕРКИ(УДАЛИТЬ В ФИНАЛЬНОЙ ВЕРСИИ!!!
             //if (!coordsIsCorrect(tmp, ControlPoint, sizeMapLongitude, sizeMapLatitude)) {
             if (!coordsIsCorrect(tmp)) {
                 Logs.writeLog(" -!- Error: out of bounds   -!- \n", Level.WARNING);
                 return List;
             } else {
-                vert = new Vertex(tmp);
-                List.addLast(vert);
+                vertex = new Vertex(tmp);
+
+                List.addLast(vertex);
             }
             pars.setLocation(tmp.getX(), tmp.getY());
             Logs.writeLog(" -- Getting started --\n", Level.INFO);
@@ -129,6 +133,7 @@ public class MoveBalloonAlgorithm {
             int res = methodTimeOut(TimeInAir, step);
             if (res <= 0) {
                 Logs.writeLog(" -- So little step! --\n", Level.WARNING);
+
                 return null;
             }
             if (parameters != null) {
@@ -139,6 +144,8 @@ public class MoveBalloonAlgorithm {
                 tmp = moveBalloon(parameters, tmp, res);
                 if (tmp == null) {
                     Logs.writeLog(" -!- Error in the movement of the balloon   -!- \n", Level.WARNING);
+
+                   // return List;
                     return null;
                 }
                 Logs.writeLog(" -- The successful relocation of the balloon --\n", Level.INFO);
@@ -146,9 +153,12 @@ public class MoveBalloonAlgorithm {
 
             } else {
                 Logs.writeLog(" -!- An error retrieving the parameters -!- \n", Level.WARNING);
+
+
                 return null;
             }
         }
+        
         Logs.writeLog(" -- A successful exit of the algorithm -- \n\n", Level.INFO);
         return List;
     }
@@ -181,7 +191,7 @@ public class MoveBalloonAlgorithm {
         Logs.writeLog(" -- Start alhorithm -- \n", Level.INFO);
         Parsing pars = new Parsing(startData, step, startHour);
         doublePoint tmp = startPoint;
-        Vertex vert;
+        Vertex vertex;
         LinkedList<Vertex> List = new LinkedList<>();
 
         while (isNotEnd(tmp, endPoint, SizeEpsilon)) {
@@ -190,8 +200,8 @@ public class MoveBalloonAlgorithm {
                 Logs.writeLog(" -!- Error: out of bounds   -!- \n", Level.WARNING);
                 return List;
             }else {
-                vert = new Vertex(tmp);
-                List.addLast(vert);
+                vertex = new Vertex(tmp);
+                List.addLast(vertex);
             }
             pars.setLocation(tmp.getX(), tmp.getY());
             Logs.writeLog(" -- Getting started --\n", Level.INFO);

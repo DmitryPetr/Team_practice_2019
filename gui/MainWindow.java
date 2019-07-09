@@ -1,14 +1,14 @@
 package gui;
 
+import algo.MoveBalloonAlgorithm;
+import dateStruct.Time;
+import dateStruct.Vertex;
+import dateStruct.doublePoint;
+
+import javax.swing.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.LinkedList;
-import javax.swing.*;
-
-import algo.MoveBalloonAlgorithm;
-import dateStruct.Vertex;
-import dateStruct.doublePoint;
-import dateStruct.Time;
 
 public class MainWindow extends JFrame{
 
@@ -215,7 +215,7 @@ public class MainWindow extends JFrame{
                     upperRight = new doublePoint(49.33333, 72.05);
                     break;
             }
-            map.setRegion(value, bottomLefht, upperRight); //X - широта, Y - долгота
+            map.setRegion(value, bottomLeft, upperRight); //X - широта, Y - долгота
             map.setNullWay();
 
             map.repaint();
@@ -241,7 +241,7 @@ public class MainWindow extends JFrame{
         private final JComboBox day = new JComboBox(days);
         private final JButton begin = new JButton("Отправиться");
         private final JLabel labelTime = new JLabel("Выберите временной интервал:");
-        private final JComboBox time = new JComboBox(new String[] {"1 час", "6 часов", "12 часов", "Сутки", "Неделя"});
+        private final JComboBox time = new JComboBox(new String[] {"1 час", "6 часов", "12 часов", "24 часа"});
 
 
         public Command() {
