@@ -37,6 +37,8 @@ public class MainWindow extends JFrame{
         commands.region.addActionListener(new JComboBoxActionListener());
         commands.example.addActionListener(new JToggleButtonExampleActionListener());
         commands.mode.addActionListener(new JComboBoxModeActionListener());
+        commands.clear.addActionListener(new JButtonClearActionListener());
+        commands.end.addActionListener(new JToggleButtonActionListener());
     }
 
     class MapMouseAdapter extends MouseAdapter implements  MouseWheelListener{
@@ -52,8 +54,16 @@ public class MainWindow extends JFrame{
             mouseX = event.getX();
             mouseY = event.getY();
             map.setNullWay();
-            map.setStartPoint(new doublePoint(mouseX,mouseY));
+            if(commands.start.isSelected()) {
+                map.setStartPoint(new doublePoint(mouseX, mouseY));
+            }
+            if(commands.end.isSelected()) {
+                map.setEndPoint(new doublePoint(mouseX, mouseY));
+            }
             commands.begin.setEnabled(true);
+            if(commands.mode.getSelectedIndex() == 1  && !map.isPointsInit()){
+                commands.begin.setEnabled(false);
+            }
             commands.example.setSelected(false);
             commands.example.setEnabled(false);
         }
@@ -83,7 +93,7 @@ public class MainWindow extends JFrame{
 
         @Override
         public void actionPerformed(ActionEvent event) {
-            if(commands.start.isSelected()) {
+            if(commands.start.isSelected() || commands.end.isSelected()) {
                 map.setGrid(true);
                 map.addMouseListener(adapter);
             } else {
@@ -160,7 +170,7 @@ public class MainWindow extends JFrame{
                 //500 - км в градусе - const
                 algo = new MoveBalloonAlgorithm(map.getBottomLefht(), sizeLongitude, sizeLatitude, nordSphere, estSphere, 500);
                 if(mode){
-                    temp = algo.AlgorithmTime(map.getStartRealCoordinate(), date, 0, new Time(0, countDay, 0), hour);
+                    temp = algo.AlgorithmTime(map.getRealCoordinate(true), date, 0, new Time(0, countDay, 0), hour);
                 }else{
                     //РЕАЛИЗОВАТЬ ЗАПУСК АЛГОРИТМА ПО ТОЧКЕ!!!
                 }
@@ -170,6 +180,9 @@ public class MainWindow extends JFrame{
             }
             //System.out.println("SIZE LIST = " + temp.size());   //ДЛЯ ПРОВЕРКИ(УДАЛИТЬ В ФИНАЛЬНОЙ ВЕРСИИ!!!
 
+            map.setGrid(false);
+            commands.start.setSelected(false);
+            commands.end.setSelected(false);
 
             if(temp != null){
                 map.setAlgorithmDate(temp);
@@ -177,6 +190,7 @@ public class MainWindow extends JFrame{
                 System.out.println("null LinkedList");
             }
             map.repaint();
+            commands.begin.setEnabled(false);
         }
     }
 
@@ -226,7 +240,11 @@ public class MainWindow extends JFrame{
                     break;
             }
             map.setRegion(value, bottomLeft, upperRight); //X - широта, Y - долгота
+            map.setGrid(false);
+            commands.start.setSelected(false);
+            commands.end.setSelected(false);
             map.setNullWay();
+            map.setNullPoint();
 
             map.repaint();
             commands.begin.setEnabled(false);
@@ -260,6 +278,22 @@ public class MainWindow extends JFrame{
         }
     }
 
+    class JButtonClearActionListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            map.setNullWay();
+            map.setNullPoint();
+            map.setGrid(false);
+            map.repaint();
+            commands.example.setSelected(false);
+            commands.end.setSelected(false);
+            commands.start.setSelected(false);
+            commands.example.setEnabled(true);
+            commands.begin.setEnabled(false);
+        }
+    }
+
     class JComboBoxModeActionListener implements ActionListener {
 
         @Override
@@ -271,6 +305,10 @@ public class MainWindow extends JFrame{
                 commands.end.setEnabled(false);
                 commands.air.setEnabled(true);
                 commands.end.setSelected(false);
+                if(!commands.start.isSelected()) {
+                    map.setGrid(false);
+                    map.repaint();
+                }
             }
         }
     }
@@ -299,6 +337,7 @@ public class MainWindow extends JFrame{
         private final JComboBox air = new JComboBox(new String[] {"1 неделя", "2 недели", "3 недели", "4 недели",
                 "5 недель", "6 недель", "7 недель", "8 недель"});
         private final JToggleButton example = new JToggleButton("Показать пример");
+        private final JButton clear = new JButton("Сброс");
         private Image image;
 
         public Command() {
@@ -353,8 +392,11 @@ public class MainWindow extends JFrame{
             begin.setLocation(57, 600);
             this.add(begin);
             example.setSize(140, 20);
-            example.setLocation(57, 630);
+            example.setLocation(15, 630);
             this.add(example);
+            clear.setSize(85, 20);
+            clear.setLocation(160, 630);
+            this.add(clear);
 
             begin.setEnabled(false);
             end.setEnabled(false);

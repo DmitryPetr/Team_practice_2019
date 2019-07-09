@@ -20,6 +20,7 @@ public class Map extends JPanel {
      * @value MapImage - фоновое изображение
      * @value region - имя фонового изображения
      * @value StartPoint -стартовая точка алгоритма
+     * @value EndPoint - конечная точка алгоритма
      * @value PointColor - цвет точки
      * @value ScaleFactor - коэфицент масштаба
      * @value ScalePoint - точка-центр масштабирования
@@ -35,6 +36,7 @@ public class Map extends JPanel {
     private Image MapImage;
     private String region = "australia.jpg";
     private doublePoint StartPoint;
+    private doublePoint EndPoint;
     private final Color PointColor = new Color(0, 13, 255);
     private double ScaleFactor;
     private doublePoint ScalePoint;
@@ -83,6 +85,12 @@ public class Map extends JPanel {
         StartPoint = new doublePoint((int)Math.abs((( p.getX()+ offsetX) / ScaleFactor)),
                 (int) Math.abs(((p.getY()+ offsetY)/ ScaleFactor)));
 
+        repaint();
+    }
+
+    public void setEndPoint(doublePoint p){
+        EndPoint = new doublePoint((int)Math.abs((( p.getX()+ offsetX) / ScaleFactor)),
+                (int) Math.abs(((p.getY()+ offsetY)/ ScaleFactor)));
 
         repaint();
     }
@@ -128,15 +136,22 @@ public class Map extends JPanel {
     }
 
     /**
-     * вычисление реальных координат в дробных градусах для стартовой точки
+     * вычисление реальных координат в дробных градусах для стартовой или конечной точки
+     * @param value - true, если для стартовой; false, если для конечной
      * @return - реальные координаты стартовой точки
      */
-    public doublePoint getStartRealCoordinate(){
+    public doublePoint getRealCoordinate(boolean value){
         //коэффициенты показывают сколько приходится градусов на один пиксель Map
         double FactorX = (bottomLeft.getX() - upperRight.getX()) / height;
         double FactorY = (upperRight.getY() - bottomLeft.getY()) / width;
-        double x = upperRight.getX() + FactorX *StartPoint.getX();    //широта
-        double y = bottomLeft.getY() + FactorY *StartPoint.getY();   //долгота
+        double x, y;
+        if(value) {
+            x = upperRight.getX() + FactorX * StartPoint.getX();    //широта
+            y = bottomLeft.getY() + FactorY * StartPoint.getY();   //долгота
+        }else{
+            x = upperRight.getX() + FactorX * EndPoint.getX();    //широта
+            y = bottomLeft.getY() + FactorY * EndPoint.getY();   //долгота
+        }
         return new doublePoint(x, y);
     }
 
@@ -161,10 +176,20 @@ public class Map extends JPanel {
 
     public doublePoint getUpperRight(){return upperRight;}
 
-    public void setNullWay() { BalloonWay = null;}
+    public void setNullPoint() {
+        StartPoint = null;
+        EndPoint = null;
+    }
+
+    public void setNullWay() { BalloonWay = null; }
 
     /**
+     * проверка установки стартовой и конечной точки для алогритма по точке
+     * @return - true, если точки установлены; false, если одна из них null
+     */
+    public boolean isPointsInit() { return StartPoint != null && EndPoint != null;}
 
+    /**
      * загрузка данных в класс map
      * также высчитывает координаты относительно карты для всех точек
      */
@@ -209,7 +234,8 @@ public class Map extends JPanel {
 
         ImageFactor = width / (double )MapImage.getWidth(null);
         ScalePoint = null;
-        StartPoint = null;
+        offsetX = offsetY = 0;
+        ScaleFactor = 1;
     }
 
     /**
@@ -278,6 +304,16 @@ public class Map extends JPanel {
 
             int X = (int) Math.round(StartPoint.getX() * ScaleFactor - offsetX - 1.5* radius);
             int Y = (int) Math.round(StartPoint.getY() * ScaleFactor - offsetY - 1.5*radius);
+
+            g.drawOval( X , Y ,3*radius,3*radius);
+            g.fillOval( X, Y,3*radius,3*radius);
+        }
+
+        g.setColor(Color.RED);
+        if(EndPoint != null){
+
+            int X = (int) Math.round(EndPoint.getX() * ScaleFactor - offsetX - 1.5* radius);
+            int Y = (int) Math.round(EndPoint.getY() * ScaleFactor - offsetY - 1.5*radius);
 
             g.drawOval( X , Y ,3*radius,3*radius);
             g.fillOval( X, Y,3*radius,3*radius);

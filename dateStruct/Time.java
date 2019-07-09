@@ -9,7 +9,6 @@ public class Time {
     private int day;
     private int hour;
 
-
     public Time(String data, int hour){
         this(data);
         this.hour = hour;}
@@ -63,5 +62,4 @@ public class Time {
         str.append("Hour:\n"+hour);
         return str.toString();
     }
-
 }

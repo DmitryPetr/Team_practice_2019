@@ -23,7 +23,7 @@ public class Parsing {
      * timeReload - время обновления погоды для конкретного дня
      */
     private static final String source = "https://api.worldweatheronline.com/premium/v1/past-weather.ashx?";
-    //private static final String key = "key=b60f705b24864ca6bc891344190307";a0fdc17cd5084361937220857190807
+    //private static final String key = "key=b60f705b24864ca6bc891344190307";
     private static final String key = "key=a0fdc17cd5084361937220857190807";
     private String location = "q=Moscow";
     private static final String format = "format=json";
@@ -66,31 +66,31 @@ public class Parsing {
 
         boolean flagTry = false;
         for(int i =0;!flagTry&&i!=2;i++){
-        try {
-            connection = (HttpURLConnection) new URL(request).openConnection();
-            connection.setRequestMethod("GET");
-            connection.setConnectTimeout(1250);
-            connection.setReadTimeout(1250);
-            connection.connect();
-            StringBuilder sb = new StringBuilder();
+            try {
+                connection = (HttpURLConnection) new URL(request).openConnection();
+                connection.setRequestMethod("GET");
+                connection.setConnectTimeout(1250);
+                connection.setReadTimeout(1250);
+                connection.connect();
+                StringBuilder sb = new StringBuilder();
 
-            if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String line;
+                if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    String line;
 
-                while ((line = in.readLine()) != null) {
-                    sb.append(line + "\n");
+                    while ((line = in.readLine()) != null) {
+                        sb.append(line + "\n");
+                    }
+                }else{
+                    Logs.writeLog(" -- Fail" + connection.getResponseCode() + ", " + connection.getResponseMessage() + " --\n", Level.WARNING);
                 }
-            }else{
-                Logs.writeLog(" -- Fail" + connection.getResponseCode() + ", " + connection.getResponseMessage() + " --\n", Level.WARNING);
-            }
-            answser = sb.toString();
-            flagTry = true;
-        } catch (Throwable cause) {
-            Logs.writeLog(" !--! Fatal  error sending HTTP request! !--!\n", Level.SEVERE);
-        } finally {
-            if (connection != null)
-                connection.disconnect();
+                answser = sb.toString();
+                flagTry = true;
+            } catch (Throwable cause) {
+                Logs.writeLog(" !--! Fatal  error sending HTTP request! !--!\n", Level.SEVERE);
+            } finally {
+                if (connection != null)
+                    connection.disconnect();
             }
         }
         if(!flagTry){
@@ -107,7 +107,7 @@ public class Parsing {
     /**
      * Метод getParameters - метода, осуществяющий получение данных о погоде путём отправления HTTTP запроса и осуществяющий парсинг ответа, в случае успеха
      */
-    public WeatherPrameters getParameters() throws IOException {
+    public WeatherParameters getParameters() throws IOException {
         if (countTime.getMonth() > 7 && countTime.getDay() > EndDay - 1) {
             Logs.writeLog(" -- Error, out of available time! --\n"+ "Last day: "+ EndDay+"\n", Level.WARNING);
             /*
@@ -161,7 +161,7 @@ public class Parsing {
             }
 
             int parameter2 = Integer.parseInt(strBuf.toString());
-            WeatherPrameters result = new WeatherPrameters(parameter1, parameter2);
+            WeatherParameters result = new WeatherParameters(parameter1, parameter2);
             countTime.setHour(countTime.getHour() + step);
             return result;
         }

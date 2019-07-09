@@ -1,21 +1,16 @@
 package dateStruct;
 
 /**
- * Структура данных для алгоритма
+ * Структура хранения данных для алгоритма
  * RealCoordinate - координаты в реальном мире
  * MapCoordinate - координаты на карте
  * PointWeather - Погода в точке
  */
 
-/*
- * Добавить вычисление map координат
- * Можно в конструктор, но лучше через сеттер или наоборот, реальные кооординаты добавлять через сеттер, а map координаты через конструктор
- * */
-
 public class Vertex{
-    private doublePoint RealCoordinate;
+    private final doublePoint RealCoordinate;
     private doublePoint MapCoordinate;
-    private WeatherPrameters weatherInPoint;
+    private WeatherParameters weatherInPoint;
 
     public Vertex(doublePoint coord){
         RealCoordinate = coord;
@@ -35,7 +30,7 @@ public class Vertex{
      * Устаналивает значение погоды в точке
      * @param weatherInPoint
      */
-    public void setWeatherInPoint(WeatherPrameters weatherInPoint) {
+    public void setWeatherInPoint(WeatherParameters weatherInPoint) {
         this.weatherInPoint = weatherInPoint;
     }
 
@@ -59,7 +54,7 @@ public class Vertex{
      * возвращает текущую погоду
      * @return
      */
-    public WeatherPrameters getWeatherInPoint(){
+    public WeatherParameters getWeatherInPoint(){
         return  weatherInPoint;
     }
 
@@ -90,7 +85,6 @@ public class Vertex{
         str.append("real coordinate:\n").append(RealCoordinate.toString());
         if (MapCoordinate != null)  str.append("map coordinate:\n").append(MapCoordinate.toString());
         if (weatherInPoint != null) str.append("Weather parameter in this point:\n").append(weatherInPoint.toString());
-
         return str.toString();
     }
 }

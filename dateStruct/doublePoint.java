@@ -51,5 +51,4 @@ public class doublePoint {
     public String toString() {
         return "X: "+x+" Y: "+y;
     }
-
 }
