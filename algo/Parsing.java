@@ -18,7 +18,8 @@ public class Parsing {
      * timeReload - время обновления погоды для конкретного дня
      */
     private static final String source = "https://api.worldweatheronline.com/premium/v1/past-weather.ashx?";
-    private static final String key = "key=b60f705b24864ca6bc891344190307";
+    //private static final String key = "key=b60f705b24864ca6bc891344190307";
+    private static final String key = "key=a0fdc17cd5084361937220857190807";
     private String location = "q=Moscow";
     private static final String format = "format=json";
     private String dataStart;

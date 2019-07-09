@@ -5,8 +5,11 @@ import dateStruct.Time;
 import dateStruct.Vertex;
 import dateStruct.doublePoint;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 
@@ -32,6 +35,8 @@ public class MainWindow extends JFrame{
         commands.start.addActionListener(new JToggleButtonActionListener());
         commands.begin.addActionListener(new JButtonActionListener());
         commands.region.addActionListener(new JComboBoxActionListener());
+        commands.example.addActionListener(new JToggleButtonExampleActionListener());
+        commands.mode.addActionListener(new JComboBoxModeActionListener());
     }
 
     class MapMouseAdapter extends MouseAdapter implements  MouseWheelListener{
@@ -46,8 +51,11 @@ public class MainWindow extends JFrame{
         public void mouseClicked(MouseEvent event) {
             mouseX = event.getX();
             mouseY = event.getY();
+            map.setNullWay();
             map.setStartPoint(new doublePoint(mouseX,mouseY));
             commands.begin.setEnabled(true);
+            commands.example.setSelected(false);
+            commands.example.setEnabled(false);
         }
 
         @Override
@@ -128,6 +136,9 @@ public class MainWindow extends JFrame{
                     hour = 24;
                     break;
             }
+            index = commands.air.getSelectedIndex();
+            int countDay = ++index;
+            countDay *= 7;
 
             LinkedList<Vertex> temp = null;
             //для определения полушарий
@@ -149,8 +160,7 @@ public class MainWindow extends JFrame{
                 //500 - км в градусе - const
                 algo = new MoveBalloonAlgorithm(map.getBottomLefht(), sizeLongitude, sizeLatitude, nordSphere, estSphere, 500);
                 if(mode){
-                    //ЗДЕСЬ ЗАДАЁТСЯ ПРОДОЛЖИТЕЛЬНОСТЬ ПОЛЁТА КАК НЕДЕЛЯ!!! МОЖНО МЕНЯТЬ!!! А ЛУЧШЕ СДЕЛАТЬ КНОПКУ ДЛЯ ВЫБОРА ПОЛЬЗОВАТЕЛЕМ!!!
-                    temp = algo.AlgorithmTime(map.getStartRealCoordinate(), date, 0, new Time(0, 7, 0), hour);
+                    temp = algo.AlgorithmTime(map.getStartRealCoordinate(), date, 0, new Time(0, countDay, 0), hour);
                 }else{
                     //РЕАЛИЗОВАТЬ ЗАПУСК АЛГОРИТМА ПО ТОЧКЕ!!!
                 }
@@ -220,6 +230,48 @@ public class MainWindow extends JFrame{
 
             map.repaint();
             commands.begin.setEnabled(false);
+            commands.example.setSelected(false);
+            commands.example.setEnabled(true);
+        }
+    }
+
+    //ОБРАБОТЧИК НАЖАТИЯ НА КНОПКУ "Показать пример"
+    class JToggleButtonExampleActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            LinkedList<Vertex> temp = new LinkedList<>();
+            if(commands.example.isSelected()) {
+                doublePoint garbage = new doublePoint(0, 0);
+                for (int i = 0; i < 10; i++) {
+                    temp.add(new Vertex(garbage));
+                }
+                temp.get(0).setMapCoordinate(new doublePoint(100, 100));
+                temp.get(1).setMapCoordinate(new doublePoint(269, 200));
+                temp.get(2).setMapCoordinate(new doublePoint(158, 358));
+                temp.get(3).setMapCoordinate(new doublePoint(173, 489));
+                temp.get(4).setMapCoordinate(new doublePoint(343, 457));
+                temp.get(5).setMapCoordinate(new doublePoint(429, 387));
+                temp.get(6).setMapCoordinate(new doublePoint(401, 361));
+                temp.get(7).setMapCoordinate(new doublePoint(389, 379));
+                temp.get(8).setMapCoordinate(new doublePoint(406, 410));
+                temp.get(9).setMapCoordinate(new doublePoint(485, 523));
+            }
+            map.setAlgorithmDate(temp);
+        }
+    }
+
+    class JComboBoxModeActionListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            if(commands.mode.getSelectedIndex() == 1){
+                commands.end.setEnabled(true);
+                commands.air.setEnabled(false);
+            }else{
+                commands.end.setEnabled(false);
+                commands.air.setEnabled(true);
+                commands.end.setSelected(false);
+            }
         }
     }
 
@@ -240,9 +292,14 @@ public class MainWindow extends JFrame{
         private final JLabel labelDays = new JLabel("Число:");
         private final JComboBox day = new JComboBox(days);
         private final JButton begin = new JButton("Отправиться");
-        private final JLabel labelTime = new JLabel("Выберите временной интервал:");
+        private final JLabel labelTime = new JLabel("Выберите интервал запроса:");
         private final JComboBox time = new JComboBox(new String[] {"1 час", "6 часов", "12 часов", "24 часа"});
-
+        private final JToggleButton end = new JToggleButton("Выбрать конечную точку");
+        private final JLabel labelAir = new JLabel("Выберите время полёта:");
+        private final JComboBox air = new JComboBox(new String[] {"1 неделя", "2 недели", "3 недели", "4 недели",
+                "5 недель", "6 недель", "7 недель", "8 недель"});
+        private final JToggleButton example = new JToggleButton("Показать пример");
+        private Image image;
 
         public Command() {
             super();
@@ -262,32 +319,75 @@ public class MainWindow extends JFrame{
             start.setSize(185, 20);
             start.setLocation(33, 90);
             this.add(start);
+            end.setSize(185, 20);
+            end.setLocation(33, 130);
+            this.add(end);
             date.setSize(200, 20);
-            date.setLocation(37, 130);
+            date.setLocation(37, 170);
             this.add(date);
             labelMonth.setSize(75, 20);
-            labelMonth.setLocation(27, 170);
+            labelMonth.setLocation(27, 210);
             this.add(labelMonth);
             month.setSize(60, 20);
-            month.setLocation(77, 170);
+            month.setLocation(77, 210);
             this.add(month);
             labelDays.setSize(75,20);
-            labelDays.setLocation(142, 170);
+            labelDays.setLocation(142, 210);
             this.add(labelDays);
             day.setSize(40, 20);
-            day.setLocation(187, 170);
+            day.setLocation(187, 210);
             this.add(day);
+            labelAir.setSize(200, 20);
+            labelAir.setLocation(50, 250);
+            this.add(labelAir);
+            air.setSize(80, 20);
+            air.setLocation( 88,290);
+            this.add(air);
             labelTime.setSize(200, 20);
-            labelTime.setLocation(30, 210);
+            labelTime.setLocation(40, 330);
             this.add(labelTime);
             time.setSize(80, 20);
-            time.setLocation( 88,250);
+            time.setLocation( 88,370);
             this.add(time);
             begin.setSize(140, 20);
-            begin.setLocation(57, 290);
+            begin.setLocation(57, 600);
             this.add(begin);
+            example.setSize(140, 20);
+            example.setLocation(57, 630);
+            this.add(example);
 
             begin.setEnabled(false);
+            end.setEnabled(false);
+
+            try {
+                String path = "";
+                path = "src" + File.separator + "gui" + File.separator + "balloon" + File.separator + "balloon.jpg";
+                image = ImageIO.read(new File(path));
+            } catch (IOException e) {
+                String message = "File not open!";
+                JOptionPane.showMessageDialog(null, message, "Error!", JOptionPane.PLAIN_MESSAGE);
+                System.exit(-1);
+            }
+        }
+
+        /*@Override
+        public void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.drawImage(image, 65, 400, this);
+            g.drawLine(65, 400, 65, 590);
+            g.drawLine(65, 400, 189, 400);
+            g.drawLine(65, 590, 189, 590);
+            g.drawLine(189, 400, 189, 590);
+        }*/
+
+        @Override
+        public void paint(Graphics g) {
+            super.paint(g);
+            g.drawImage(image, 65, 400, this);
+            g.drawLine(65, 400, 65, 590);
+            g.drawLine(65, 400, 189, 400);
+            g.drawLine(65, 590, 189, 590);
+            g.drawLine(189, 400, 189, 590);
         }
     }
 }

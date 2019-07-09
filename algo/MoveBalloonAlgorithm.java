@@ -133,7 +133,6 @@ public class MoveBalloonAlgorithm {
             int res = methodTimeOut(TimeInAir, step);
             if (res <= 0) {
                 Logs.writeLog(" -- So little step! --\n", Level.WARNING);
-
                 return null;
             }
             if (parameters != null) {
@@ -153,7 +152,6 @@ public class MoveBalloonAlgorithm {
 
             } else {
                 Logs.writeLog(" -!- An error retrieving the parameters -!- \n", Level.WARNING);
-
 
                 return null;
             }

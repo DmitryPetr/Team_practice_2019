@@ -151,7 +151,7 @@ public class Map extends JPanel {
         double FactorY = (upperRight.getY() - bottomLeft.getY()) / width;
         double x = (realCoordinate.getX() - upperRight.getX()) / FactorX;
         double y = (realCoordinate.getY() - bottomLeft.getY()) / FactorY;
-	x = Math.round(x);
+	    x = Math.round(x);
         y = Math.round(y);
 
         return new doublePoint(x, y);
