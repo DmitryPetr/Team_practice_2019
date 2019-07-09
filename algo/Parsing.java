@@ -9,31 +9,6 @@ import logger.Logs;
 import dateStruct.*;
 
 public class Parsing {
-    private static Parsing instance;
-    private static int step;
-    private Time countTime;
-    private Time MeasuringCount;
-
-    /**
-     * Приватный конструктор и метод getInstance реализуют паттерн Singleton
-     */
-    public static Parsing getInstance(String data, int step, int startHour) throws IOException {
-        if (instance == null) {
-            Logs.writeLog(" -- Create first instance of parsing class! -- \n", Level.INFO);
-            instance = new Parsing(data, step, startHour);
-        }
-        Logs.writeLog(" -- The request instance of the parsing class! -- \n", Level.INFO);
-        return instance;
-    }
-
-    private Parsing(String data, int step, int startHour) throws IOException {
-        countTime = new Time(data, startHour);
-        this.step = step;
-        setDataStart(data);
-        MeasuringCount = new Time();
-        Logs.writeLog(" -- Create parsing class instance successful --\n", Level.INFO);
-    }
-
     /**
      * Параметры
      * source - источник
@@ -51,6 +26,17 @@ public class Parsing {
     private static final String timeReload = "tp=1";
     private HttpURLConnection connection = null;
     private String answser;
+    private int step;
+    private Time countTime;
+    private Time MeasuringCount;
+
+    public Parsing(String data, int step, int startHour) throws IOException {
+        countTime = new Time(data, startHour);
+        this.step = step;
+        setDataStart(data);
+        MeasuringCount = new Time();
+        Logs.writeLog(" -- Create parsing class instance successful --\n", Level.INFO);
+    }
 
     public void setDataStart(String dataStart) {
         StringBuilder str = new StringBuilder("date=");

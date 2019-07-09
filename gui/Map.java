@@ -42,7 +42,7 @@ public class Map extends JPanel {
     private int offsetX,offsetY;
     private doublePoint bottomLefht = new doublePoint(43.73333, 112.93333); //значения для Австралии
     private doublePoint upperRight = new doublePoint(7.36667, 154.31667);;  //для загрузки по умолчанию
-    LinkedList<Vertex> BallonWay;
+    private LinkedList<Vertex> BallonWay;
 
     /**
      * Конструктор класса
@@ -82,17 +82,6 @@ public class Map extends JPanel {
     }
 
     /**
-     * ДЛЯ ЧЕГО ЭТА ШТУКА???
-     * ПОЧЕМУ ВОЗВРАЩАЕТ INT???
-     * @return
-     */
-    public doublePoint getStartPoint(){
-        int x = (int) Math.abs( StartPoint.getX()  / ImageCoof );
-        int y = (int) Math.abs( StartPoint.getY() / ImageCoof );
-        return new doublePoint(x,y);
-    }
-
-    /**
      * метод для изменения масштаба
      * @param coof - прибавка к масштабу
      * @param coord - точка вызова ищменеия масштаба
@@ -101,8 +90,6 @@ public class Map extends JPanel {
         if( isVisible(coord) && (ScaleCoof + coof) >= 1.0 && (ScaleCoof + coof ) < 3.5){
             ScaleCoof += coof;
             ScalePoint = new doublePoint(coord);
-
-
             double MoveMapCoofX = (ScalePoint.getX() / width); // тут изменить коэф смещения для большей плавности
             double MoveMapCoofY = (ScalePoint.getY() / height);
 
@@ -127,7 +114,6 @@ public class Map extends JPanel {
                     offsetY = (int) Math.round((MapImage.getHeight(null) * ScaleCoof * ImageCoof - height));
                 }
             }
-
             repaint();
         }
     }
@@ -160,39 +146,40 @@ public class Map extends JPanel {
     }
 
     /**
-     * ЗДЕСБ КООРДИНАТЫ ВОЗВРАЩАЮТСЯ В DOUBLE!!! НА КАРТЕ У НАС INT, ВОЗМОЖНА ПОГРЕШНОСТЬ В 1 ПИКСЕЛЬ!!!
-     * ПРИМЕНИТЬ Math.round(x) и Math.round(y), ЛИБО ПЕРЕД ВОЗВРАТОМ, ЛИБО УЖЕ ТАМ, ОТКУДА БУДЕТ ВЫЗВАН МЕТОД!!!
      * Вычисление координат на карте приложения без масштабирования
      * @param realCoordinate - реальные географические координаты в дробных градусах
-     * @return - координаты на карте в приложении
+     * @return - координаты на карте в приложении, возвращаются int, для точного расположения на карте
      */
     public doublePoint getMapCoordinate(doublePoint realCoordinate){
         double coeffX = (bottomLefht.getX() - upperRight.getX()) / height;
         double coeffY = (upperRight.getY() - bottomLefht.getY()) / width;
         double x = (realCoordinate.getX() - upperRight.getX()) / coeffX;
         double y = (realCoordinate.getY() - bottomLefht.getY()) / coeffY;
+        x = Math.round(x);
+        y = Math.round(y);
         return new doublePoint(x, y);
     }
 
+    public doublePoint getBottomLefht(){return bottomLefht;}
+
+    public doublePoint getUpperRight(){return upperRight;}
+
+    public void setNullWay() { BallonWay = null;}
+
     /**
-     * РЕАЛИЗОВАТЬ!!!
+     * Отрисовка на карте пути
+     * @param date - список вершин
      */
     public  void setAlgorithmDate(LinkedList<Vertex> date){
         grid = false;
         BallonWay = date;
-        // загрузка данных алгоритма
         for (Vertex vert: date) {
             if(vert.getMapCoordinate() == null){
-                System.out.println(vert.toString());
-
                 doublePoint temp = vert.getRealCoordinate();
                 doublePoint temp2 = getMapCoordinate(temp);
                 vert.setMapCoordinate(temp2);
-
-                System.out.println(vert.toString());
             }
         }
-
         repaint();
     }
 
@@ -254,7 +241,6 @@ public class Map extends JPanel {
         int radius = 3;
         g.setColor(PointColor);
 
-
         if(BallonWay!=null){
             doublePoint prevPoint = null;
             doublePoint temp = null;
@@ -268,31 +254,25 @@ public class Map extends JPanel {
                 g.setColor(Color.BLACK);
 
                 g.setFont(new Font("Serif", Font.PLAIN, 10));
-                g.drawString("time", X -5, Y - 25);
-                g.drawString("weather", X -5, Y - 15);
-                g.drawString(vert.getRealCoordinate().toString(), X -5, Y - 5);
+                //ПРИДУМАТЬ КАК КРАСИВО ЭТО ВЫВОДИТЬ!!!
+                //g.drawString("time", X -5, Y - 25);
+                //g.drawString("weather", X -5, Y - 15);
+                //g.drawString(vert.getRealCoordinate().toString(), X -5, Y - 5);
 
                 if(prevPoint == null){
                     prevPoint = new doublePoint(X+radius,Y+radius);
                     continue;
                 }
                 g.drawLine((int)prevPoint.getX(),(int)prevPoint.getY(),X+radius,Y+radius);
-
+                prevPoint = new doublePoint(X+radius,Y+radius);
             }
         }
 
         if(StartPoint != null){
-
-
             int X = (int) (StartPoint.getX() * ScaleCoof - offsetX - 1.5* radius);
             int Y = (int) (StartPoint.getY() * ScaleCoof - offsetY - 1.5*radius);
-
             g.drawOval( X , Y ,3*radius,3*radius);
             g.fillOval( X, Y,3*radius,3*radius);
         }
-        /*
-        Алгоритм отрисовки пути
-         */
     }
-
 }

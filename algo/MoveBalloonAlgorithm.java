@@ -10,31 +10,22 @@ import dateStruct.*;
 import dateStruct.doublePoint;
 
 public class MoveBalloonAlgorithm {
-    /**
-     * Приватный конструктор и метод getInstance реализуют паттерн Singleton
-     */
+
     private doublePoint ControlPoint;
     private static MoveBalloonAlgorithm instance;
-    private final double sizeMapLongitude;
-    private final double sizeMapLatitude;
-    private final int scale; /*Необходимо добавить в проект*/
+    private double sizeMapLongitude;
+    private double sizeMapLatitude;
+    private int scale; /*Необходимо добавить в проект*/
+    private boolean nordHemisphere;
+    private boolean estHemisphere;
 
-    public static MoveBalloonAlgorithm getInstance(doublePoint СontrolPoint, double sizeLongitude, double sizeLatitude, int scale) throws IOException {
-        if (instance == null) {
-            Date date = new Date();
-            Logs.writeLog(" -- " + date.toString() + "--\n", Level.INFO);
-            Logs.writeLog(" -- Create first instance of algorithm! -- \n", Level.INFO);
-            instance = new MoveBalloonAlgorithm(СontrolPoint, sizeLongitude , sizeLatitude, scale);
-        }
-        Logs.writeLog(" -- The request instance of the algorithm! -- \n", Level.INFO);
-        return instance;
-    }
-
-    private MoveBalloonAlgorithm(doublePoint СontrolPoint,  double sizeLongitude, double sizeLatitude, int scale) throws IOException {
+    public MoveBalloonAlgorithm(doublePoint СontrolPoint,  double sizeLongitude, double sizeLatitude, boolean nordSphere, boolean estSphere, int scale) throws IOException {
         this.ControlPoint = СontrolPoint;
         sizeMapLongitude = sizeLongitude;
         sizeMapLatitude = sizeLatitude;
         this.scale = scale;
+        nordHemisphere = nordSphere;
+        estHemisphere = estSphere;
         Logs.writeLog(" -- Create MoveBalloonAlgorithm instance successful --\n", Level.INFO);
     }
 
@@ -42,36 +33,52 @@ public class MoveBalloonAlgorithm {
      * Метод moveBalloon - метод, который вычисляет координаты следующей точки
      */
     private doublePoint moveBalloon(WeatherPrameters parameters, doublePoint startPoint, int step) {
-        if (scale == 0) return null;
-        /*
-         * Посмотреть корректно ли строятся координаты!!!
-         * */
-        double x = startPoint.getX() + Math.cos(parameters.getWinddirDegree()) * (parameters.getWindGustKmph() * step / scale);
-        double y = startPoint.getY() + Math.sin(parameters.getWinddirDegree()) * (parameters.getWindGustKmph() * step / scale);
+        if(scale == 0)
+            return null;
+        double x = startPoint.getX() + Math.cos(parameters.getWinddirDegree()) * (parameters.getWindGustKmph() * step / (double)scale);
+        double y = startPoint.getY() + Math.sin(parameters.getWinddirDegree()) * (parameters.getWindGustKmph() * step / (double)scale);
         doublePoint result = new doublePoint(x, y);
         return result;
     }
 
     /**
-     * Необходимая функция, проверяющая выход за границу
-     * нужна ли она? может нужно делать проверку при отрисовке
-     *
+     * Метод coordsIsCorrect - метод, который проверяет выход за границы карты
      */
-    private boolean coordsIsCorrect(doublePoint tmp, doublePoint C_Point, double sizeLongitude,double sizeLatitude) {
-        if (tmp.getX() > C_Point.getX() && tmp.getX() < C_Point.getX() + sizeLongitude){
-            if (tmp.getY() > C_Point.getY() && tmp.getY() < C_Point.getY() + sizeLatitude) {
-                return true;
-            } else {
+    private boolean coordsIsCorrect(doublePoint tmp) {
+        if(nordHemisphere){
+            if(tmp.getX() > ControlPoint.getX() && tmp.getX() < ControlPoint.getX() + sizeMapLatitude){
+                return coordsLongitudeIsCorrect(tmp);
+            }else{
                 return false;
             }
-        } else {
-            return false;
+        }else{
+            if(tmp.getX() < ControlPoint.getX() && tmp.getX() > ControlPoint.getX() - sizeMapLatitude){
+                return coordsLongitudeIsCorrect(tmp);
+            }else{
+                return false;
+            }
         }
     }
-    /*
-     * Необходима функция, проверяющая выход за границу, если граница не квадратная
-     *
-     * */
+
+    /**
+     * Метод coordsLongitudeIsCorrect - метод, который проверяет выход за пределы долготы на карте
+     */
+    public boolean coordsLongitudeIsCorrect(doublePoint tmp){
+        if(estHemisphere){
+            if(tmp.getY() > ControlPoint.getY() && tmp.getY() < ControlPoint.getY() + sizeMapLongitude){
+                return true;
+            }else{
+                return false;
+            }
+        }else {
+            if(tmp.getY() < ControlPoint.getY() && tmp.getY() > ControlPoint.getY() - sizeMapLongitude) {
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+    }
 
     /**
      * Метод methodTimeOut - метод, осуществляющий уменьшение времени полёта после каждого шага
@@ -93,19 +100,20 @@ public class MoveBalloonAlgorithm {
         }
     }
 
-
     /**
      * Метод AlgorithmTime - алгоритм вычисления конечной точки, при задании пользователем варианта программы "Полёт по времени"
      */
     public LinkedList<Vertex> AlgorithmTime(doublePoint startPoint, String startData, int startHour, Time TimeInAir, int step) throws IOException {
         Logs.writeLog(" -- Start alhorithm -- \n", Level.INFO);
-        Parsing pars = Parsing.getInstance(startData, step, startHour);
+        Parsing pars = new Parsing(startData, step, startHour);
         doublePoint tmp = startPoint;
         Vertex vert;
         Time Measuring = new Time(startData);
         LinkedList<Vertex> List = new LinkedList<>();
         while (TimeInAir.TimeNotOut()) {
-            if (!coordsIsCorrect(tmp, ControlPoint, sizeMapLongitude, sizeMapLatitude)) {
+            System.out.println("NEXT STEP!");   //ДЛЯ ПРОВЕРКИ(УДАЛИТЬ В ФИНАЛЬНОЙ ВЕРСИИ!!!
+            //if (!coordsIsCorrect(tmp, ControlPoint, sizeMapLongitude, sizeMapLatitude)) {
+            if (!coordsIsCorrect(tmp)) {
                 Logs.writeLog(" -!- Error: out of bounds   -!- \n", Level.WARNING);
                 return List;
             } else {
@@ -146,12 +154,17 @@ public class MoveBalloonAlgorithm {
      * причём равенство конца вычисляется с учётом какой то области
      */
     private boolean isNotEnd(doublePoint tmp, doublePoint End, double SizeEpsilon) {
-        //System.out.println(SizeEpsilon/2);
         double Control_x = End.getX() - (SizeEpsilon / 2);
         double Control_y = End.getY() - (SizeEpsilon / 2);
-        doublePoint C_Point = new doublePoint(Control_x, Control_y);
-        if (!coordsIsCorrect(tmp, C_Point, SizeEpsilon, SizeEpsilon)) return true;
-        else return false;
+        if (tmp.getX() > Control_x && tmp.getX() < Control_x + SizeEpsilon){
+            if (tmp.getY() > Control_y && tmp.getY() < Control_y + SizeEpsilon) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
 
 
@@ -160,13 +173,14 @@ public class MoveBalloonAlgorithm {
      */
     public LinkedList<Vertex> AlgorithmEndPoint(doublePoint startPoint, doublePoint endPoint, String startData, int startHour, int step, double SizeEpsilon) throws IOException {
         Logs.writeLog(" -- Start alhorithm -- \n", Level.INFO);
-        Parsing pars = Parsing.getInstance(startData, step, startHour);
+        Parsing pars = new Parsing(startData, step, startHour);
         doublePoint tmp = startPoint;
         Vertex vert;
         Time Measuring = new Time(startData);
         LinkedList<Vertex> List = new LinkedList<>();
         while (isNotEnd(tmp, endPoint, SizeEpsilon)) {
-            if (!coordsIsCorrect(tmp, ControlPoint, sizeMapLongitude, sizeMapLatitude)) {
+            //if (!coordsIsCorrect(tmp, ControlPoint, sizeMapLongitude, sizeMapLatitude)) {
+            if (!coordsIsCorrect(tmp)) {
                 Logs.writeLog(" -!- Error: out of bounds   -!- \n", Level.WARNING);
                 return List;
             }else {

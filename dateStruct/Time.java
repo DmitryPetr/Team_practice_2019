@@ -15,11 +15,11 @@ public class Time {
         this.hour = hour;}
 
     public Time(String data){
-    String[] split = data.split("[-]");
-    year = Integer.parseInt(split[0]);
-    month = Integer.parseInt(split[1]);
-    day = Integer.parseInt(split[2]);
-    hour = 0;}
+        String[] split = data.split("[-]");
+        year = Integer.parseInt(split[0]);
+        month = Integer.parseInt(split[1]);
+        day = Integer.parseInt(split[2]);
+        hour = 0;}
 
     /**
      * Конструктор от 3х аргументов необходим для задания времени полёта
@@ -60,11 +60,11 @@ public class Time {
         //System.out.println("Month: "+month+"\nDay: "+day+"\nHour: "+hour+"\n");
 
         if(month==0&&day==0&&hour==0){
-           // System.out.println("In TimeNotOut - false\n");
+            // System.out.println("In TimeNotOut - false\n");
 
             return false;}
         else{
-           // System.out.println("In TimeNotOut - true\n");
+            // System.out.println("In TimeNotOut - true\n");
             return true;}
     }
 

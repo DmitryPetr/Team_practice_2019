@@ -2,12 +2,14 @@ package gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.LinkedList;
 import javax.swing.*;
 
 import algo.MoveBalloonAlgorithm;
 import dateStruct.Vertex;
 import dateStruct.doublePoint;
+import dateStruct.Time;
 
 public class MainWindow extends JFrame{
 
@@ -87,44 +89,76 @@ public class MainWindow extends JFrame{
 
     class JButtonActionListener implements ActionListener {
 
-        /**
-         * ОРГАНИЗОВАТЬ ЗАПУСК АЛГОРИТМА!!!
-         * АНАЛОГИЧНО ИЗВЛЕЧЬ ИНФОРМАЦИЮ ИЗ ПОЛЯ "МЕСЯЦ", "ЧИСЛО" и "ИНТЕРВАЛ ВРЕМЕНИ"!!!
-         * ОПЦИОНАЛЬНО: СДЛЕАТЬ ДЛЯ МАЯ ДОСТУПНЫМИ НЕ ВСЕ ДНИ, ДЛЯ ИЮНЯ ИСКЛЮЧИТЬ 31, ДЛЯ ИЛЯ - НЕНАСТУПИВШИЕ ДНИ!!!
-         */
         @Override
         public void actionPerformed(ActionEvent event) {
-            System.out.println("START!");
+            boolean mode = false;
             int index = commands.mode.getSelectedIndex();
-            String value = new String((String)commands.mode.getItemAt(index));
-            //System.out.println(commands.mode.getItemAt(index));
-            System.out.println(value);
-
-
+            if(index == 0){
+                mode = true;
+            }
+            index = commands.month.getSelectedIndex();
+            String date = new String("2019-");
+            switch(index){
+                case 0:
+                    date += "05-";
+                    break;
+                case 1:
+                    date += "06-";
+                    break;
+                case 2:
+                    date += "07-";
+                    break;
+            }
+            index = commands.day.getSelectedIndex();
+            index++;
+            date += index;
+            index = commands.time.getSelectedIndex();
+            int hour = 0;
+            switch(index){
+                case 0:
+                    hour = 1;
+                    break;
+                case 1:
+                    hour = 6;
+                    break;
+                case 2:
+                    hour = 12;
+                    break;
+                case 3:
+                    hour = 24;
+                    break;
+            }
 
             LinkedList<Vertex> temp = null;
-            /*
-            тут нужно вызвать алгоритм и присвоить его temp
-             map.getStartRealCoordinate(); - возвращает координаты стартовой точки
+            //для определения полушарий
+            boolean nordSphere = true;
+            boolean estSphere = true;
+            double sizeLatitude = map.getUpperRight().getX() - map.getBottomLefht().getX();
+            if(sizeLatitude < 0){
+                sizeLatitude *= -1;
+                nordSphere = false;
+            }
+            double sizeLongitude = map.getUpperRight().getY() - map.getBottomLefht().getY();
+            if(sizeLongitude < 0){
+                sizeLongitude *= -1;
+                estSphere = false;
+            }
 
-             остальные парметры за тобой
-
-
-            отрисовка работает
-            нужны методы
-            toString() для weather и time
-             */
-/*
-test
-            LinkedList<Vertex> temp = new LinkedList<Vertex>();
-            Vertex temp1 = new Vertex(new doublePoint(31.5, 135.87));
-            Vertex temp2 = new Vertex(new doublePoint(30.98, 137.97));
-            Vertex temp3 = new Vertex(new doublePoint(28.46, 137.43));
-
-            temp.addLast(temp1);
-            temp.addLast(temp2);
-            temp.addLast(temp3);
-*/
+            MoveBalloonAlgorithm algo;
+            try {
+                //500 - км в градусе - const
+                algo = new MoveBalloonAlgorithm(map.getBottomLefht(), sizeLongitude, sizeLatitude, nordSphere, estSphere, 500);
+                if(mode){
+                    //ЗДЕСЬ ЗАДАЁТСЯ ПРОДОЛЖИТЕЛЬНОСТЬ ПОЛЁТА КАК НЕДЕЛЯ!!! МОЖНО МЕНЯТЬ!!! А ЛУЧШЕ СДЕЛАТЬ КНОПКУ ДЛЯ ВЫБОРА ПОЛЬЗОВАТЕЛЕМ!!!
+                    temp = algo.AlgorithmTime(map.getStartRealCoordinate(), date, 0, new Time(0, 7, 0), hour);
+                }else{
+                    //РЕАЛИЗОВАТЬ ЗАПУСК АЛГОРИТМА ПО ТОЧКЕ!!!
+                }
+            } catch (IOException e) {
+                // ДОБАВИТЬ ОБРАБОТКУ ИСКЛЮЧЕНИЯ!!! (ЛОГГЕР???)
+                // e.printStackTrace()
+            }
+            //System.out.println("SIZE LIST = " + temp.size());   //ДЛЯ ПРОВЕРКИ(УДАЛИТЬ В ФИНАЛЬНОЙ ВЕРСИИ!!!
 
             if(temp != null){
                 map.setAlgorithmDate(temp);
@@ -181,6 +215,7 @@ test
                     break;
             }
             map.setRegion(value, bottomLefht, upperRight); //X - широта, Y - долгота
+            map.setNullWay();
             map.repaint();
             commands.begin.setEnabled(false);
         }
@@ -203,7 +238,7 @@ test
         private JComboBox day = new JComboBox(days);
         private JButton begin = new JButton("Отправиться");
         private JLabel labelTime = new JLabel("Выберите временной интервал:");
-        private JComboBox time = new JComboBox(new String[] {"1 час", "6 часов", "12 часов", "Сутки", "Неделя"});
+        private JComboBox time = new JComboBox(new String[] {"1 час", "6 часов", "12 часов", "24 часа"});
 
         public Command() {
             super();
