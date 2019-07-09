@@ -7,17 +7,22 @@ import java.io.IOException;
 import java.util.logging.*;
 
 public class Logs{
+    private final static Logger logger = Logger.getLogger(Main.class.getName());
 
-    private static final Logger logger = Logger.getLogger(Main.class.getName());
-
-    // Main.class.getName()
-
-    public static void writeLog(String Message, Level level) throws IOException {
-
-        Handler fileLog = new FileHandler();
+    static {
+        Handler fileLog = null;
+        try {
+            fileLog = new FileHandler();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        fileLog.setFormatter(new Forms());
         fileLog.setFormatter(new Forms());
         logger.setUseParentHandlers(false);
         logger.addHandler(fileLog);
+    }
+
+    public static void writeLog(String Message, Level level) throws IOException {
         logger.log(level, Message);
     }
 

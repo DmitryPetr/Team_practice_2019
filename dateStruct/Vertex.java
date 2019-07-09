@@ -1,17 +1,21 @@
 package dateStruct;
 
 /**
- * Структура хранения данных для алгоритма
+ * Структура данных для алгоритма
  * RealCoordinate - координаты в реальном мире
  * MapCoordinate - координаты на карте
  * PointWeather - Погода в точке
  */
 
-public class Vertex{
-    private final doublePoint RealCoordinate;
-    private doublePoint MapCoordinate;
+/*
+ * Добавить вычисление map координат
+ * Можно в конструктор, но лучше через сеттер или наоборот, реальные кооординаты добавлять через сеттер, а map координаты через конструктор
+ * */
 
-    private WeatherParameters weatherInPoint;
+public class Vertex{
+    private doublePoint RealCoordinate;
+    private doublePoint MapCoordinate;
+    private WeatherPrameters weatherInPoint;
 
     public Vertex(doublePoint coord){
         RealCoordinate = coord;
@@ -31,7 +35,7 @@ public class Vertex{
      * Устаналивает значение погоды в точке
      * @param weatherInPoint
      */
-    public void setWeatherInPoint(WeatherParameters weatherInPoint) {
+    public void setWeatherInPoint(WeatherPrameters weatherInPoint) {
         this.weatherInPoint = weatherInPoint;
     }
 
@@ -55,8 +59,29 @@ public class Vertex{
      * возвращает текущую погоду
      * @return
      */
-    public WeatherParameters getWeatherInPoint(){
+    public WeatherPrameters getWeatherInPoint(){
         return  weatherInPoint;
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        if(this==obj){
+            return true;
+        }
+        if(obj instanceof Vertex){
+            Vertex otherObj = (Vertex)obj;
+            if(otherObj.RealCoordinate.equals(RealCoordinate)){
+                if(otherObj.weatherInPoint.equals(weatherInPoint)) return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode(){
+        int result = 31;
+        result = 11 * result + RealCoordinate.hashCode() + weatherInPoint.hashCode();
+        return result;
     }
 
     @Override

@@ -35,11 +35,10 @@ public class Time {
      * Метод TimeNotOut необходим для работы алгоритме в режиме полёта по времени, который вычисляет "закончилось ли время полёта?"
      * */
     public boolean TimeNotOut() throws IOException {
-
-        //Logs.writeLog(" -- In TimeNotOut: \n", Level.INFO);
-        //System.out.println("Month: "+month+"\nDay: "+day+"\nHour: "+hour+"\n");
-
-        return month != 0 || day != 0 || hour != 0;
+        if(month==0&&day==0&&hour==0){
+            return false;}
+        else{
+            return true;}
     }
 
     public int getDay() { return day; }

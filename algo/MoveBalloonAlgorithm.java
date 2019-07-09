@@ -1,19 +1,17 @@
 package algo;
 
-import dateStruct.Time;
-import dateStruct.Vertex;
-import dateStruct.WeatherParameters;
-import dateStruct.doublePoint;
-import logger.Logs;
-
 import java.io.IOException;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.logging.Level;
+
+import logger.Logs;
+import dateStruct.*;
+import dateStruct.doublePoint;
 
 public class MoveBalloonAlgorithm {
 
     private doublePoint ControlPoint;
-    private static MoveBalloonAlgorithm instance;
     private double sizeMapLongitude;
     private double sizeMapLatitude;
     private int scale; /*Необходимо добавить в проект*/
@@ -24,18 +22,18 @@ public class MoveBalloonAlgorithm {
         this.ControlPoint = СontrolPoint;
         sizeMapLongitude = sizeLongitude;
         sizeMapLatitude = sizeLatitude;
-
         this.scale = scale;
         nordHemisphere = nordSphere;
         estHemisphere = estSphere;
+        Date date = new Date();
+        Logs.writeLog(date.toString()+"\n", Level.INFO);
         Logs.writeLog(" -- Create MoveBalloonAlgorithm instance successful --\n", Level.INFO);
     }
 
     /**
      * Метод moveBalloon - метод, который вычисляет координаты следующей точки
      */
-
-    private doublePoint moveBalloon(WeatherParameters parameters, doublePoint startPoint, int step) {
+    private doublePoint moveBalloon(WeatherPrameters parameters, doublePoint startPoint, int step) {
         if(scale == 0)
             return null;
         double x = startPoint.getX() + Math.cos(parameters.getWinddirDegree()) * (parameters.getWindGustKmph() * step / (double)scale);
@@ -63,7 +61,6 @@ public class MoveBalloonAlgorithm {
         }
     }
 
-
     /**
      * Метод coordsLongitudeIsCorrect - метод, который проверяет выход за пределы долготы на карте
      */
@@ -82,7 +79,6 @@ public class MoveBalloonAlgorithm {
                 return false;
             }
         }
-
     }
 
     /**
@@ -109,55 +105,45 @@ public class MoveBalloonAlgorithm {
      * Метод AlgorithmTime - алгоритм вычисления конечной точки, при задании пользователем варианта программы "Полёт по времени"
      */
     public LinkedList<Vertex> AlgorithmTime(doublePoint startPoint, String startData, int startHour, Time TimeInAir, int step) throws IOException {
-
         Logs.writeLog(" -- Start alhorithm -- \n", Level.INFO);
         Parsing pars = new Parsing(startData, step, startHour);
         doublePoint tmp = startPoint;
-        Vertex vertex;
+        Vertex vert;
         LinkedList<Vertex> List = new LinkedList<>();
-
         while (TimeInAir.TimeNotOut()) {
-            System.out.println("NEXT STEP!"); //ДЛЯ ПРОВЕРКИ(УДАЛИТЬ В ФИНАЛЬНОЙ ВЕРСИИ!!!
+            Logs.writeLog(" -- NEXT STEP! --\n", Level.INFO);   //ДЛЯ ПРОВЕРКИ(УДАЛИТЬ В ФИНАЛЬНОЙ ВЕРСИИ!!!
             //if (!coordsIsCorrect(tmp, ControlPoint, sizeMapLongitude, sizeMapLatitude)) {
             if (!coordsIsCorrect(tmp)) {
-                Logs.writeLog(" -!- Error: out of bounds   -!- \n", Level.WARNING);
+                Logs.writeLog(" \n-!- Error: out of bounds   -!- \n" +"Last successful Point:\n"+List.getLast().getRealCoordinate().toString()+"\n" , Level.WARNING);
                 return List;
             } else {
-                vertex = new Vertex(tmp);
-
-                List.addLast(vertex);
+                vert = new Vertex(tmp);
+                List.addLast(vert);
             }
             pars.setLocation(tmp.getX(), tmp.getY());
-            Logs.writeLog(" -- Getting started --\n", Level.INFO);
-            WeatherParameters parameters = pars.getParameters();
+            Logs.writeLog(" -- Start getting data from the server --\n", Level.INFO);
+            WeatherPrameters parameters = pars.getParameters();
             int res = methodTimeOut(TimeInAir, step);
             if (res <= 0) {
-                Logs.writeLog(" -- So little step! --\n", Level.WARNING);
+                Logs.writeLog(" \n-- So little step! --\n" + " -- Step value we can step on:" + res+ "\n\n", Level.WARNING);
                 return null;
             }
             if (parameters != null) {
-
                 Logs.writeLog(" -- Successful receipt of the parameters --\n", Level.INFO);
-                vertex.setWeatherInPoint(parameters);
+                vert.setWeatherInPoint(parameters);
                 Logs.writeLog(" -- Start moving the balloon --\n", Level.INFO);
                 tmp = moveBalloon(parameters, tmp, res);
                 if (tmp == null) {
-                    Logs.writeLog(" -!- Error in the movement of the balloon   -!- \n", Level.WARNING);
-
-                   // return List;
+                    Logs.writeLog(" -!- ERRORR in the movement of the balloon  -!- \n"+"Last successful Point:\n"+List.getLast().getRealCoordinate().toString()+"\n", Level.WARNING);
                     return null;
                 }
-                Logs.writeLog(" -- The successful relocation of the balloon --\n", Level.INFO);
-
-
+                Logs.writeLog(" -- The successful relocation of the balloon --\n\n", Level.INFO);
             } else {
-                Logs.writeLog(" -!- An error retrieving the parameters -!- \n", Level.WARNING);
-
-                return null;
+                Logs.writeLog(" -!- An error retrieving the parameters -!- \n" + "Last successful weaher parameter:\n" + List.getLast().getWeatherInPoint().toString()+"\n", Level.WARNING);
+                return List;
             }
         }
-        
-        Logs.writeLog(" -- A successful exit of the algorithm -- \n\n", Level.INFO);
+        Logs.writeLog(" -- A successful exit of the algorithm -- \n", Level.INFO);
         return List;
     }
 
@@ -177,7 +163,6 @@ public class MoveBalloonAlgorithm {
         } else {
             return true;
         }
-
     }
 
 
@@ -185,42 +170,39 @@ public class MoveBalloonAlgorithm {
      * Метод AlgorithmEndPoint - алгоритм вычисления конечной точки, при задании пользователем варианта программы "Полёт к конечной координате"
      */
     public LinkedList<Vertex> AlgorithmEndPoint(doublePoint startPoint, doublePoint endPoint, String startData, int startHour, int step, double SizeEpsilon) throws IOException {
-
-        Logs.writeLog(" -- Start alhorithm -- \n", Level.INFO);
+        Logs.writeLog(" -- Start alhorithm -- ", Level.INFO);
         Parsing pars = new Parsing(startData, step, startHour);
         doublePoint tmp = startPoint;
-        Vertex vertex;
+        Vertex vert;
         LinkedList<Vertex> List = new LinkedList<>();
-
         while (isNotEnd(tmp, endPoint, SizeEpsilon)) {
-            //if (!coordsIsCorrect(tmp, ControlPoint, sizeMapLongitude, sizeMapLatitude)) {
+            Logs.writeLog(" -- NEXT STEP! --\n", Level.INFO);
             if (!coordsIsCorrect(tmp)) {
-                Logs.writeLog(" -!- Error: out of bounds   -!- \n", Level.WARNING);
+                Logs.writeLog(" \n-!- Error: out of bounds   -!- \n" +"Last successful Point:\n"+List.getLast().getRealCoordinate().toString()+"\n" , Level.WARNING);
                 return List;
             }else {
-                vertex = new Vertex(tmp);
-                List.addLast(vertex);
+                vert = new Vertex(tmp);
+                List.addLast(vert);
             }
             pars.setLocation(tmp.getX(), tmp.getY());
-            Logs.writeLog(" -- Getting started --\n", Level.INFO);
-            WeatherParameters parameters = pars.getParameters();
+            Logs.writeLog(" -- Start getting data from the server --\n", Level.INFO);
+            WeatherPrameters parameters = pars.getParameters();
             if (parameters != null) {
                 Logs.writeLog(" -- Successful receipt of the parameters --\n", Level.INFO);
-                vertex.setWeatherInPoint(parameters);
+                vert.setWeatherInPoint(parameters);
                 Logs.writeLog(" -- Start moving the balloon --\n", Level.INFO);
                 tmp = moveBalloon(parameters, tmp, step);
                 if (tmp == null) {
-                    Logs.writeLog(" -!- Error in the movement of the balloon   -!- \n", Level.WARNING);
+                    Logs.writeLog(" -!- ERRORR in the movement of the balloon  -!- \n"+"Last successful Point:\n"+List.getLast().getRealCoordinate().toString()+"\n", Level.WARNING);
                     return null;
                 }
-                Logs.writeLog(" -- The successful relocation of the balloon --\n", Level.INFO);
-
+                Logs.writeLog(" -- The successful relocation of the balloon -- \n\n", Level.INFO);
             } else {
-                Logs.writeLog(" -!- An error retrieving the parameters -!- \n", Level.WARNING);
+                Logs.writeLog(" -!- An error retrieving the parameters -!- \n" + "Last successful weaher parameter:\n" + List.getLast().getWeatherInPoint().toString()+"\n", Level.WARNING);
                 return null;
             }
         }
-        Logs.writeLog(" -- A successful exit of the algorithm -- \n\n", Level.INFO);
+        Logs.writeLog(" -- A successful exit of the algorithm -- \n", Level.INFO);
         return List;
     }
 }
