@@ -108,7 +108,6 @@ public class MoveBalloonAlgorithm {
         Parsing pars = new Parsing(startData, step, startHour);
         doublePoint tmp = startPoint;
         Vertex vert;
-        Time Measuring = new Time(startData);
         LinkedList<Vertex> List = new LinkedList<>();
         while (TimeInAir.TimeNotOut()) {
             System.out.println("NEXT STEP!");   //ДЛЯ ПРОВЕРКИ(УДАЛИТЬ В ФИНАЛЬНОЙ ВЕРСИИ!!!
@@ -117,13 +116,12 @@ public class MoveBalloonAlgorithm {
                 Logs.writeLog(" -!- Error: out of bounds   -!- \n", Level.WARNING);
                 return List;
             } else {
-                vert = new Vertex(tmp, Measuring);
+                vert = new Vertex(tmp);
                 List.addLast(vert);
             }
             pars.setLocation(tmp.getX(), tmp.getY());
             Logs.writeLog(" -- Getting started --\n", Level.INFO);
             WeatherPrameters parameters = pars.getParameters();
-            Measuring = pars.getMeasuringCount();
             int res = methodTimeOut(TimeInAir, step);
             if (res <= 0) {
                 Logs.writeLog(" -- So little step! --\n", Level.WARNING);
@@ -176,7 +174,6 @@ public class MoveBalloonAlgorithm {
         Parsing pars = new Parsing(startData, step, startHour);
         doublePoint tmp = startPoint;
         Vertex vert;
-        Time Measuring = new Time(startData);
         LinkedList<Vertex> List = new LinkedList<>();
         while (isNotEnd(tmp, endPoint, SizeEpsilon)) {
             //if (!coordsIsCorrect(tmp, ControlPoint, sizeMapLongitude, sizeMapLatitude)) {
@@ -184,13 +181,12 @@ public class MoveBalloonAlgorithm {
                 Logs.writeLog(" -!- Error: out of bounds   -!- \n", Level.WARNING);
                 return List;
             }else {
-                vert = new Vertex(tmp, Measuring);
+                vert = new Vertex(tmp);
                 List.addLast(vert);
             }
             pars.setLocation(tmp.getX(), tmp.getY());
             Logs.writeLog(" -- Getting started --\n", Level.INFO);
             WeatherPrameters parameters = pars.getParameters();
-            Measuring = pars.getMeasuringCount();
             if (parameters != null) {
                 Logs.writeLog(" -- Successful receipt of the parameters --\n", Level.INFO);
                 vert.setWeatherInPoint(parameters);

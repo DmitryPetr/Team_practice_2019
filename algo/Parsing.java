@@ -28,13 +28,11 @@ public class Parsing {
     private String answser;
     private int step;
     private Time countTime;
-    private Time MeasuringCount;
 
     public Parsing(String data, int step, int startHour) throws IOException {
         countTime = new Time(data, startHour);
         this.step = step;
         setDataStart(data);
-        MeasuringCount = new Time();
         Logs.writeLog(" -- Create parsing class instance successful --\n", Level.INFO);
     }
 
@@ -46,10 +44,6 @@ public class Parsing {
     public void setLocation(double x, double y) {
         StringBuilder str = new StringBuilder("q=");
         this.location = str.append(x + "," + y).toString();
-    }
-
-    public Time getMeasuringCount() {
-        return MeasuringCount;
     }
 
     public void setLocation(String location) {
@@ -119,7 +113,6 @@ public class Parsing {
         }
 
         if (countTime.getHour() < 24) {
-            MeasuringCount.setTime(countTime);
             answser = "";
             getMesWeather();
             String find = "\"time\":\"" + (countTime.getHour() * 100) + "\"";
