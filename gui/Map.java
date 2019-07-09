@@ -252,11 +252,14 @@ public class Map extends JPanel {
                     prevPoint = new doublePoint(X+radius,Y+radius);
                     continue;
                 }
+
                 g.drawLine((int)prevPoint.getX(),(int)prevPoint.getY(),X+radius,Y+radius);
+                prevPoint = new doublePoint(X+radius,Y+radius);
 
             }
         }
 
+        g.setColor(PointColor);
         if(StartPoint != null){
             int X = (int) Math.round(StartPoint.getX() * ScaleFactor - offsetX - 1.5* radius);
             int Y = (int) Math.round(StartPoint.getY() * ScaleFactor - offsetY - 1.5*radius);
