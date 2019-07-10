@@ -84,7 +84,7 @@ public class Vertex{
         StringBuilder str = new StringBuilder();
         str.append("real coordinate:\n").append(RealCoordinate.toString());
         if (MapCoordinate != null)  str.append("map coordinate:\n").append(MapCoordinate.toString());
-        if (weatherInPoint != null) str.append("Weather parameter in this point:\n").append(weatherInPoint.toString());
+        if (weatherInPoint != null) str.append("\nWeather parameter in this point:\n").append(weatherInPoint.toString());
         return str.toString();
     }
 }

@@ -31,8 +31,8 @@ public class doublePoint {
         }
         if(obj instanceof dateStruct.doublePoint){
             dateStruct.doublePoint otherObj = (dateStruct.doublePoint)obj;
-            if(otherObj.x==x){
-                if(otherObj.y==y) return true;
+            if(Math.abs(otherObj.x-x)<0.1){
+                if(Math.abs(otherObj.y-y)<0.1) return true;
             }
         }
         return false;

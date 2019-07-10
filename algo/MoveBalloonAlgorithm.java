@@ -166,10 +166,11 @@ public class MoveBalloonAlgorithm {
         Logs.writeLog(" -- Start alhorithm -- ", Level.INFO);
         Parsing pars = new Parsing(startData, step, startHour);
         doublePoint tmp = startPoint;
+        WeatherParameters tmpW = null;
         Vertex vert;
         LinkedList<Vertex> List = new LinkedList<>();
         while (isNotEnd(tmp, endPoint, SizeEpsilon)) {
-            System.out.println("FLYYYYYY!!!");  //УБРАТЬ В ФИНАЛЬНОЙ ВЕРСИИ!!!
+            //System.out.println("FLYYYYYY!!!");  //УБРАТЬ В ФИНАЛЬНОЙ ВЕРСИИ!!!
             Logs.writeLog(" -- NEXT STEP! --\n", Level.INFO);
             if (!coordsIsCorrect(tmp, ControlPoint, sizeMapLatitude, sizeMapLongitude)) {
                 Logs.writeLog(" \n-!- Error: out of bounds   -!- \n" +"Last successful Point:\n"+List.getLast().getRealCoordinate().toString()+"\n" , Level.WARNING);
@@ -181,6 +182,7 @@ public class MoveBalloonAlgorithm {
             pars.setLocation(tmp.getX(), tmp.getY());
             Logs.writeLog(" -- Start getting data from the server --\n", Level.INFO);
             WeatherParameters parameters = pars.getParameters();
+            tmpW = parameters;
             if (parameters != null) {
                 Logs.writeLog(" -- Successful receipt of the parameters --\n", Level.INFO);
                 vert.setWeatherInPoint(parameters);
@@ -196,6 +198,9 @@ public class MoveBalloonAlgorithm {
                 return null;
             }
         }
+        vert = new Vertex(endPoint);
+        vert.setWeatherInPoint(tmpW);
+        List.addLast(vert);
         Logs.writeLog(" -- A successful exit of the algorithm -- \n", Level.INFO);
         return List;
     }
