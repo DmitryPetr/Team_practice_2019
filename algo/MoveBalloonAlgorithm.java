@@ -1,20 +1,19 @@
 package algo;
 
+import dateStruct.*;
+import logger.Logs;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.logging.Level;
-
-import logger.Logs;
-import dateStruct.*;
-import dateStruct.doublePoint;
 
 public class MoveBalloonAlgorithm {
 
     private doublePoint ControlPoint;
     private double sizeMapLongitude;
     private double sizeMapLatitude;
-    private int scale; /*Необходимо добавить в проект*/
+    private int scale;
     private boolean nordHemisphere;
     private boolean estHemisphere;
 
@@ -170,7 +169,6 @@ public class MoveBalloonAlgorithm {
         Vertex vert;
         LinkedList<Vertex> List = new LinkedList<>();
         while (isNotEnd(tmp, endPoint, SizeEpsilon)) {
-            //System.out.println("FLYYYYYY!!!");  //УБРАТЬ В ФИНАЛЬНОЙ ВЕРСИИ!!!
             Logs.writeLog(" -- NEXT STEP! --\n", Level.INFO);
             if (!coordsIsCorrect(tmp, ControlPoint, sizeMapLatitude, sizeMapLongitude)) {
                 Logs.writeLog(" \n-!- Error: out of bounds   -!- \n" +"Last successful Point:\n"+List.getLast().getRealCoordinate().toString()+"\n" , Level.WARNING);

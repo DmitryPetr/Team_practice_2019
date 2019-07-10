@@ -174,16 +174,15 @@ public class MainWindow extends JFrame{
                 if(mode){
                     temp = algo.AlgorithmTime(map.getRealCoordinate(true), date, 0, new Time(0, countDay, 0), hour);
                 }else{
-                    double epsilon = 1.0; //область вокруг конечной точки в дробных градусах
-                    System.out.println("ПЕРЕД ЗАПУСКОМ!");
+                    double epsilon = 0.5; //область вокруг конечной точки в дробных градусах
                     temp = algo.AlgorithmEndPoint(map.getRealCoordinate(true), map.getRealCoordinate(false), date, 0, hour, epsilon);
-                    System.out.println("ПОСЛЕ ЗАПУСКА!");
                 }
             }catch (IOException e) {
-                // ДОБАВИТЬ ОБРАБОТКУ ИСКЛЮЧЕНИЯ!!! (ЛОГГЕР???)
-                // e.printStackTrace()
+                JOptionPane.showMessageDialog(null, "Ошибка записи в лог-файл!", "Error!", JOptionPane.PLAIN_MESSAGE);
+                System.exit(-1);
             }catch (NullPointerException e) {
-                System.out.println("ИСКЛЮЧЕНИЕ! ХЗ КАК ОНО ПОЛУЧИЛОСЬ!");
+                JOptionPane.showMessageDialog(null, "Обращение к null! Выполните сброс и выберите другие данные!", "Error!", JOptionPane.PLAIN_MESSAGE);
+                return;
             }
 
             map.setGrid(false);
@@ -193,7 +192,11 @@ public class MainWindow extends JFrame{
             if(temp != null){
                 map.setAlgorithmDate(temp);
             }else{
-                System.out.println("null LinkedList");
+                if(mode){
+                    JOptionPane.showMessageDialog(null, "По таким данным не удалось построить путь!", "Fail!", JOptionPane.PLAIN_MESSAGE);
+                }else{
+                    JOptionPane.showMessageDialog(null, "Пути в выбранную точку не нашлось!", "Fail!", JOptionPane.PLAIN_MESSAGE);
+                }
             }
             map.repaint();
             commands.begin.setEnabled(false);
@@ -244,6 +247,11 @@ public class MainWindow extends JFrame{
                     bottomLeft = new doublePoint(4.86667, 124.1);
                     upperRight = new doublePoint(49.33333, 72.05);
                     break;
+                case 7:
+                    value = "antarctica.jpg";
+                    bottomLeft = new doublePoint(83.1, 96.63333);
+                    upperRight = new doublePoint(62.46667, 16.65);
+                    break;
             }
             map.setRegion(value, bottomLeft, upperRight); //X - широта, Y - долгота
             map.setGrid(false);
@@ -293,6 +301,7 @@ public class MainWindow extends JFrame{
             map.setNullStartPoint();
             map.setNullEndPoint();
             map.setGrid(false);
+            map.setNullScale();
             map.repaint();
             commands.example.setSelected(false);
             commands.end.setSelected(false);
@@ -344,7 +353,7 @@ public class MainWindow extends JFrame{
 
         private final JLabel labelRegion = new JLabel("Выберите регион:");
         private final JComboBox region = new JComboBox(new String[] {"Австралия", "Балканы", "Китай", "Индия", "Россия",
-                "Скандинавия", "США"});
+                "Скандинавия", "США", "Антарктида"});
         private JLabel labelMode = new JLabel("Выберите режим:");
         private final JComboBox mode = new JComboBox(new String[] {"По времени", "К точке"});
         private final JToggleButton start = new JToggleButton("Выбрать стартовую точку");
@@ -353,7 +362,6 @@ public class MainWindow extends JFrame{
         private final JComboBox month = new JComboBox(new String[] {"Май", "Июнь", "Июль"});
         private final String[] days = new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
                 "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
-
         private final JLabel labelDays = new JLabel("Число:");
         private final JComboBox day = new JComboBox(days);
         private final JButton begin = new JButton("Отправиться");
@@ -433,7 +441,7 @@ public class MainWindow extends JFrame{
                 path = "src" + File.separator + "gui" + File.separator + "balloon" + File.separator + "balloon.jpg";
                 image = ImageIO.read(new File(path));
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(null, "Balloon not open!", "Error!", JOptionPane.PLAIN_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Balloon image not open!", "Error!", JOptionPane.PLAIN_MESSAGE);
                 System.exit(-1);
             }
         }

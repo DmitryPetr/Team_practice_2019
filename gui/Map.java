@@ -2,7 +2,7 @@ package gui;
 
 import dateStruct.Vertex;
 import dateStruct.doublePoint;
-//import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -84,14 +84,12 @@ public class Map extends JPanel {
     public void setStartPoint(doublePoint p){
         StartPoint = new doublePoint((int)Math.abs((( p.getX()+ offsetX) / ScaleFactor)),
                 (int) Math.abs(((p.getY()+ offsetY)/ ScaleFactor)));
-
         repaint();
     }
 
     public void setEndPoint(doublePoint p){
         EndPoint = new doublePoint((int)Math.abs((( p.getX()+ offsetX) / ScaleFactor)),
                 (int) Math.abs(((p.getY()+ offsetY)/ ScaleFactor)));
-
         repaint();
     }
 
@@ -128,7 +126,7 @@ public class Map extends JPanel {
      * @param coord - точка проверки
      * @return true - если входит в область видимой карты
      */
-    private boolean isVisible(/*@NotNull*/ doublePoint coord) {
+    private boolean isVisible(@NotNull doublePoint coord) {
         int borderX = 10;
         int borderY = 50;
         return (!(coord.getX() <= borderX) && !(coord.getX() >= width + borderX)) &&
@@ -168,7 +166,6 @@ public class Map extends JPanel {
         double y = (realCoordinate.getY() - bottomLeft.getY()) / FactorY;
 	    x = Math.round(x);
         y = Math.round(y);
-
         return new doublePoint(x, y);
     }
 
@@ -181,6 +178,12 @@ public class Map extends JPanel {
     public void setNullStartPoint() { StartPoint = null; }
 
     public void setNullEndPoint() { EndPoint = null; }
+
+    public void setNullScale() {
+        ScalePoint = null;
+        offsetX = offsetY = 0;
+        ScaleFactor = 1;
+    }
 
     /**
      * проверка установки стартовой и конечной точки для алогритма к точке
@@ -198,12 +201,9 @@ public class Map extends JPanel {
 
         for (Vertex vertex: date) {
             if(vertex.getMapCoordinate() == null){
-                System.out.println(vertex.toString());
-
                 doublePoint temp = vertex.getRealCoordinate();
                 doublePoint temp2 = getMapCoordinate(temp);
                 vertex.setMapCoordinate(temp2);
-
             }
         }
         repaint();
@@ -231,9 +231,7 @@ public class Map extends JPanel {
         }
 
         ImageFactor = width / (double )MapImage.getWidth(null);
-        ScalePoint = null;
-        offsetX = offsetY = 0;
-        ScaleFactor = 1;
+        setNullScale();
     }
 
     /**

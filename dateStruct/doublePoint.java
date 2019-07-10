@@ -6,7 +6,6 @@ package dateStruct;
 public class doublePoint {
     private double x;
     private double y;
-    //private doublePoint prevPoint;
 
     public double getX() { return x;}
 

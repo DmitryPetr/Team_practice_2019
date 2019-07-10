@@ -10,14 +10,16 @@ public class Time {
 
     public Time(String data, int hour){
         this(data);
-        this.hour = hour;}
+        this.hour = hour;
+    }
 
     public Time(String data){
         String[] split = data.split("[-]");
         year = Integer.parseInt(split[0]);
         month = Integer.parseInt(split[1]);
         day = Integer.parseInt(split[2]);
-        hour = 0;}
+        hour = 0;
+    }
 
     /**
      * Конструктор от 3х аргументов необходим для задания времени полёта
