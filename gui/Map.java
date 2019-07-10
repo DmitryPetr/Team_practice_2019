@@ -1,15 +1,15 @@
 package gui;
 
+import dateStruct.Vertex;
+import dateStruct.doublePoint;
+import org.jetbrains.annotations.NotNull;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
-import javax.imageio.ImageIO;
-import javax.swing.*;
-
-import dateStruct.Vertex;
-import dateStruct.doublePoint;
-import org.jetbrains.annotations.NotNull;
 
 public class Map extends JPanel {
     /**
@@ -101,7 +101,7 @@ public class Map extends JPanel {
      * @param coord - точка вызова изменения масштаба
      */
     public void MapScale(double step, doublePoint coord){
-        if( isVisible(coord) && (ScaleFactor + step) >= 1.0 && (ScaleFactor + step) < 3.5){
+        if( isVisible(coord) && (ScaleFactor + step) >= 1.0 && (ScaleFactor + step) < 5.0){
             ScaleFactor += step;
             ScalePoint = new doublePoint(coord);
 
@@ -283,10 +283,16 @@ public class Map extends JPanel {
 
                 g.setFont(new Font("Serif", Font.PLAIN, 10));
 
-                //ПРИДУМАТЬ КАК КРАСИВО ЭТО ВЫВОДИТЬ!!!
-                //g.drawString("time", X -5, Y - 25);
-                //g.drawString("weather", X -5, Y - 15);
-                //g.drawString(vert.getRealCoordinate().toString(), X -5, Y - 5);
+                if(ScaleFactor >= 2.2){
+                    if(vertex.getWeatherInPoint() != null){
+                        g.drawString(vertex.getWeatherInPoint().toString(), X -30, Y - 15);
+                    }
+
+                    g.drawString(vertex.getRealCoordinate().toString(), X -30, Y - 5);
+                }
+
+
+
 
                 if(prevPoint == null){
                     prevPoint = new doublePoint(X+radius,Y+radius);
@@ -302,21 +308,23 @@ public class Map extends JPanel {
         g.setColor(PointColor);
         if(StartPoint != null){
 
-            int X = (int) Math.round(StartPoint.getX() * ScaleFactor - offsetX - 1.5* radius);
-            int Y = (int) Math.round(StartPoint.getY() * ScaleFactor - offsetY - 1.5*radius);
+            int X = (int) Math.round(StartPoint.getX() * ScaleFactor - offsetX - 1.5 * radius);
+            int Y = (int) Math.round(StartPoint.getY() * ScaleFactor - offsetY - 1.5 * radius);
 
-            g.drawOval( X , Y ,3*radius,3*radius);
+            g.drawOval( X, Y,3*radius,3*radius);
             g.fillOval( X, Y,3*radius,3*radius);
+            g.drawString("start", X -10, Y + 20);
         }
 
         g.setColor(Color.RED);
         if(EndPoint != null){
 
-            int X = (int) Math.round(EndPoint.getX() * ScaleFactor - offsetX - 1.5* radius);
-            int Y = (int) Math.round(EndPoint.getY() * ScaleFactor - offsetY - 1.5*radius);
+            int X = (int) Math.round(EndPoint.getX() * ScaleFactor - offsetX - 1.5 * radius);
+            int Y = (int) Math.round(EndPoint.getY() * ScaleFactor - offsetY - 1.5 * radius);
 
-            g.drawOval( X , Y ,3*radius,3*radius);
+            g.drawOval( X, Y,3*radius,3*radius);
             g.fillOval( X, Y,3*radius,3*radius);
+            g.drawString("finish", X -10, Y + 20);
         }
     }
 }

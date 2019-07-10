@@ -1,7 +1,6 @@
 package dateStruct;
 
 import java.io.IOException;
-import java.util.logging.Level;
 
 public class Time {
     private int year;

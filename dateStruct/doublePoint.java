@@ -49,6 +49,6 @@ public class doublePoint {
 
     @Override
     public String toString() {
-        return "X: "+x+" Y: "+y;
+        return "X: "+ String.format("%.2f", x) +" Y: "+ String.format("%.2f", y);
     }
 }

@@ -44,6 +44,6 @@ public class WeatherParameters {
 
     @Override
     public String toString() {
-        return "angle: " + WinddirDegree + "speed: " + WinddirDegree;
+        return "A: " + String.format("%.2f", WinddirDegree) + " S: " + String.format("%.2f", WinddirDegree);
     }
 }
