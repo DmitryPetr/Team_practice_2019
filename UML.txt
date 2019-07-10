@@ -1,0 +1,97 @@
+%2F%2F Balloon Way Project
+
+
+[doublePoint| - x:double; - y:double|+ doublePoint(x: double，y: double);+ doublePoint(NewPoint:doublePoint);+ getX(): double;+ getY(): double;+ toString(): String]
+
+[Time| - year:int; - month:int; - day:int; - hour:int;| + Time(data: String，hour: int); + Time(data: String); + Time(month: int，day: int，hour:int);+ TimeNotOut(): boolean;+ getDay(): int; + getHour(): int; + getMonth(): int;+ getYear(): int; + setDay(day: int); + setHour(hour: int); + setMonth(month: int);]
+
+[WeatherParameters| - WindGustKmph:final int; - WinddirDegree:final int| +WeatherParameters(input_WindGustKmph: int，input_WinddirDegree: int); + getWinddirDegree(): int; + getWindGustKmph(): int; + toString(): int;]
+
+[Vertex| - RealCoordinate:final doublePoint; - MapCoordinate:doublePoint; - weatherInPoint: WeatherParameters|+  Vertex(coord: doublePoint ); + setMapCoordinate(mapCoordinate: doublePoint); + setWeatherInPoint(weatherInPoint: WeatherParameters); + getRealCoordinate(): doublePoint; + getMapCoordinate(): doublePoint; + getWeatherInPoint(): WeatherParameters; + toString(): String]
+
+
+[Vertex]++->[doublePoint]
+[Vertex]++->[Time]
+[Vertex]++->[WeatherParameters]
+
+[Parsing| - source:static final String; - key:static final String; - location:String; - format:static final String; - dataStart:String; -timeReload:static final String; - connection:HttpURLConnection; - answer: String; - step: int; - countTime:Time| + Parsing(data: String，step: int，startHour: int); + setDataStart(dataStart: String); + setLocation(x: double，y: double); + setLocation(location: String); - getMesWeather(); + getParameters(): WeatherParameters;]
+
+[Parsing]++->[Time]
+
+
+[MoveBalloonAlgorithm| - ControlPoint:doublePoint;  - sizeMapLongitude:double; - sizeMapLatitude:double;  - scale:int; - nordHemisphere:boolean;  - estHemisphere:boolean; |  + MoveBalloonAlgorithm(СontrolPoint: doublePoint，;sizeLongitude:double，  sizeLatitude: double，;nordSphere:boolean，estSphere:boolean， scalу:int); - moveBalloon(parameters:WeatherParameters，;startPoint:doublePoint，step:int): doublePoint; - coordsIsCorrect(tmp: doublePoint，Control: doublePoint，; sizeLatitude: double，sizeLongitude: double ): boolean; - coordsLongitudeIsCorrect(tmp: doublePoint，Control: doublePoint，sizeLongitude: double): boolean; - methodTimeOut(tmp: Time，step: int): int; +  AlgorithmTime(startPoint:doublePoint，; startData: String，startHour: int，;  TimeInAir: Time，step:int): LinkedList\\&lt;Vertex\\&gt;]
+
+[MoveBalloonAlgorithm]<>->[Vertex]
+[MoveBalloonAlgorithm]++->[doublePoint]
+[MoveBalloonAlgorithm]<>->[Time]
+[MoveBalloonAlgorithm]++->[Parsing]
+
+[MainWindow| - commands:final Command; - map:final Map; -adapter:final MapMouseAdapter | + MainWindow(); ]
+
+
+[MapMouseAdapter| - mouseX: int; - mouseY: int;| + MapMouseAdapter(); + mouseClicked(event: MouseEvent); + mouseDragged(me: MouseEvent ); + mouseWheelMoved(me: MouseWheelEvent )]
+[MouseAdapter]^-[MapMouseAdapter]
+[<<MouseWheelListener>>]^-.-[MapMouseAdapter]
+
+[JToggleButtonActionListener| + actionPerformed(event: ActionEvent)]
+[<<ActionListener>>]^-.-[JToggleButtonActionListener]
+
+
+[JButtonActionListener| + actionPerformed(event: ActionEvent)]
+[<<ActionListener>>]^-.-[JButtonActionListener]
+
+[JComboBoxActionListener| + actionPerformed(event: ActionEvent)]
+[<<ActionListener>>]^-.-[JComboBoxActionListener]
+
+[JToggleButtonExampleActionListener| + actionPerformed(event: ActionEvent)]
+[<<ActionListener>>]^-.-[JToggleButtonExampleActionListener]
+
+[JButtonClearActionListener| + actionPerformed(event: ActionEvent)]
+[<<ActionListener>>]^-.-[JButtonClearActionListener]
+
+[JComboBoxModeActionListener| + actionPerformed(event: ActionEvent)]
+[<<ActionListener>>]^-.-[JComboBoxModeActionListener]
+
+[JComboBoxDaysActionListener| + actionPerformed(event: ActionEvent)]
+[<<ActionListener>>]^-.-[JComboBoxDaysActionListener]
+
+
+[Command| - labelRegion:final JLabel; - region:final JComboBox; - labelMode:final JLabel; - mode:final JComboBox; - start: final JToggleButton;  - date:final JLabel; - labelMonth:final JLabel; -  month:final JComboBox; - days: final String［］; - labelDays: final JLabel; - day:final JComboBox; - begin:final JButton; - labelTime:final JLabel; - time:final JComboBox; - end:final JToggleButton; - labelAir:final JLabel; - air: final JComboBox; - example:final JToggleButton; - clear:final JButton; - image: Image;| + Command(); + paint(Graphics g)]
+[JPanel]^-[Command]
+[Command]<>->[JToggleButton]
+
+
+[JFrame]^-[MainWindow]
+[MainWindow]++-1>[Command]
+[MainWindow]++-1>[MapMouseAdapter]
+[MainWindow]<>->[JToggleButtonActionListener]
+[MainWindow]<>->[JButtonActionListener]
+[MainWindow]<>->[JComboBoxActionListener]
+[MainWindow]<>->[JToggleButtonExampleActionListener]
+[MainWindow]<>->[JButtonClearActionListener]
+[MainWindow]<>->[JComboBoxModeActionListener]
+[MainWindow]<>->[JComboBoxDaysActionListener]
+[MainWindow]<>->[Command]
+[MainWindow]++->[MoveBalloonAlgorithm]
+
+[Map| - width:final int;- height:final int; - grid:boolean; - gridColor:final Color; - MapImage:Image; - region:String; - StartPoint:doublePoint; - EndPoint:doublePoint; - PointColor:final Color; - ScaleFactor:double; - ScalePoint:doublePoint; - ImageFactor:double; - offsetX:int; - offsetY:int; - bottomLeft;doublePoint; - upperRight:doublePoint;  - BalloonWay:LinkedList\\<Vertex\\>; | + Map(width:int，height:int); + setGrid(value:boolean); + setStartPoint(p: doublePoint); + setEndPoint(p: doublePoint); + setNullScale(); + MapScale(step: double，coord:doublePoint); + isVisible(coord: doublePoint):boolean; + getRealCoordinate(value: boolean): doublePoint; + getMapCoordinate(realCoordinate: doublePoint):doublePoint; + getBottomLefht(): doublePoint; + getUpperRight(): doublePoint; + setNullWay(); + setNullStartPoint(); + setNullEndPoint(); + isPointsInit(): boolean; + setAlgorithmDate(date: LinkedList\\<Vertex\\>); setRegion(value: String，bottomLeft:doublePoint，; upperRight: doublePoint); paint(g: Graphics);]
+[Map]++->[doublePoint]
+[Map]++->[Vertex]
+
+
+[MainWindow]++-1>[Map]
+
+[Main| + static main(args: String［］)]
+
+[Main]++->[MainWindow]
+
+[Logs| - logger: final static Logger | +static writeLog(Message: String，level: Level); ]
+[Forms| +format(LogRecord record): String;]
+[Logs]+-private>[Forms]
+[Formatter]^-[Forms]
+
+[Main]->[Logs]
+
+[JTest| - test1(); - test2(); - test3(); - test4(); - test5(); - test6();]
+
+[JTest]->[MoveBalloonAlgorithm]
