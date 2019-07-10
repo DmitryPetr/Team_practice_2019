@@ -45,35 +45,34 @@ public class MoveBalloonAlgorithm {
     /**
      * Метод coordsIsCorrect - метод, который проверяет выход за границы карты
      */
-    private boolean coordsIsCorrect(doublePoint tmp) {
+    private boolean coordsIsCorrect(doublePoint tmp, doublePoint Control, double sizeLatitude, double sizeLongitude) {
         if(nordHemisphere){
-            if(tmp.getX() > ControlPoint.getX() && tmp.getX() < ControlPoint.getX() + sizeMapLatitude){
-                return coordsLongitudeIsCorrect(tmp);
+            if(tmp.getX() > Control.getX() && tmp.getX() < Control.getX() + sizeLatitude){
+                return coordsLongitudeIsCorrect(tmp, Control, sizeLongitude);
             }else{
                 return false;
             }
         }else{
-            if(tmp.getX() < ControlPoint.getX() && tmp.getX() > ControlPoint.getX() - sizeMapLatitude){
-                return coordsLongitudeIsCorrect(tmp);
+            if(tmp.getX() < Control.getX() && tmp.getX() > Control.getX() - sizeLatitude){
+                return coordsLongitudeIsCorrect(tmp, Control, sizeLongitude);
             }else{
                 return false;
             }
         }
     }
 
-
     /**
      * Метод coordsLongitudeIsCorrect - метод, который проверяет выход за пределы долготы на карте
      */
-    public boolean coordsLongitudeIsCorrect(doublePoint tmp){
+    public boolean coordsLongitudeIsCorrect(doublePoint tmp, doublePoint Control, double sizeLongitude){
         if(estHemisphere){
-            if(tmp.getY() > ControlPoint.getY() && tmp.getY() < ControlPoint.getY() + sizeMapLongitude){
+            if(tmp.getY() > Control.getY() && tmp.getY() < Control.getY() + sizeLongitude){
                 return true;
             }else{
                 return false;
             }
         }else {
-            if(tmp.getY() < ControlPoint.getY() && tmp.getY() > ControlPoint.getY() - sizeMapLongitude) {
+            if(tmp.getY() < Control.getY() && tmp.getY() > Control.getY() - sizeLongitude) {
                 return true;
             }
             else{
@@ -115,7 +114,7 @@ public class MoveBalloonAlgorithm {
         LinkedList<Vertex> List = new LinkedList<>();
         while (TimeInAir.TimeNotOut()) {
             Logs.writeLog(" -- NEXT STEP! --\n", Level.INFO);
-            if (!coordsIsCorrect(tmp)) {
+            if (!coordsIsCorrect(tmp, ControlPoint, sizeMapLatitude, sizeMapLongitude)) {
                 Logs.writeLog(" \n-!- Error: out of bounds   -!- \n" +"Last successful Point:\n"+List.getLast().getRealCoordinate().toString()+"\n" , Level.WARNING);
                 return List;
             } else {
@@ -156,16 +155,7 @@ public class MoveBalloonAlgorithm {
     private boolean isNotEnd(doublePoint tmp, doublePoint End, double SizeEpsilon) {
         double Control_x = End.getX() - (SizeEpsilon / 2);
         double Control_y = End.getY() - (SizeEpsilon / 2);
-        if (tmp.getX() > Control_x && tmp.getX() < Control_x + SizeEpsilon){
-            if (tmp.getY() > Control_y && tmp.getY() < Control_y + SizeEpsilon) {
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            return true;
-        }
-
+        return !coordsIsCorrect(tmp, new doublePoint(Control_x, Control_y), SizeEpsilon, SizeEpsilon);
     }
 
     /**
@@ -179,8 +169,9 @@ public class MoveBalloonAlgorithm {
         Vertex vert;
         LinkedList<Vertex> List = new LinkedList<>();
         while (isNotEnd(tmp, endPoint, SizeEpsilon)) {
+            System.out.println("FLYYYYYY!!!");  //УБРАТЬ В ФИНАЛЬНОЙ ВЕРСИИ!!!
             Logs.writeLog(" -- NEXT STEP! --\n", Level.INFO);
-            if (!coordsIsCorrect(tmp)) {
+            if (!coordsIsCorrect(tmp, ControlPoint, sizeMapLatitude, sizeMapLongitude)) {
                 Logs.writeLog(" \n-!- Error: out of bounds   -!- \n" +"Last successful Point:\n"+List.getLast().getRealCoordinate().toString()+"\n" , Level.WARNING);
                 return List;
             }else {

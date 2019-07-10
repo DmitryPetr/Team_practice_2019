@@ -39,6 +39,8 @@ public class MainWindow extends JFrame{
         commands.mode.addActionListener(new JComboBoxModeActionListener());
         commands.clear.addActionListener(new JButtonClearActionListener());
         commands.end.addActionListener(new JToggleButtonActionListener());
+        commands.day.addActionListener(new JComboBoxDaysActionListener());
+        commands.month.addActionListener(new JComboBoxDaysActionListener());
     }
 
     class MapMouseAdapter extends MouseAdapter implements  MouseWheelListener{
@@ -172,13 +174,17 @@ public class MainWindow extends JFrame{
                 if(mode){
                     temp = algo.AlgorithmTime(map.getRealCoordinate(true), date, 0, new Time(0, countDay, 0), hour);
                 }else{
-                    //РЕАЛИЗОВАТЬ ЗАПУСК АЛГОРИТМА ПО ТОЧКЕ!!!
+                    double epsilon = 1.0; //область вокруг конечной точки в дробных градусах
+                    System.out.println("ПЕРЕД ЗАПУСКОМ!");
+                    temp = algo.AlgorithmEndPoint(map.getRealCoordinate(true), map.getRealCoordinate(false), date, 0, hour, epsilon);
+                    System.out.println("ПОСЛЕ ЗАПУСКА!");
                 }
-            } catch (IOException e) {
+            }catch (IOException e) {
                 // ДОБАВИТЬ ОБРАБОТКУ ИСКЛЮЧЕНИЯ!!! (ЛОГГЕР???)
                 // e.printStackTrace()
+            }catch (NullPointerException e) {
+                System.out.println("ИСКЛЮЧЕНИЕ! ХЗ КАК ОНО ПОЛУЧИЛОСЬ!");
             }
-            //System.out.println("SIZE LIST = " + temp.size());   //ДЛЯ ПРОВЕРКИ(УДАЛИТЬ В ФИНАЛЬНОЙ ВЕРСИИ!!!
 
             map.setGrid(false);
             commands.start.setSelected(false);
@@ -244,7 +250,8 @@ public class MainWindow extends JFrame{
             commands.start.setSelected(false);
             commands.end.setSelected(false);
             map.setNullWay();
-            map.setNullPoint();
+            map.setNullStartPoint();
+            map.setNullEndPoint();
 
             map.repaint();
             commands.begin.setEnabled(false);
@@ -283,7 +290,8 @@ public class MainWindow extends JFrame{
         @Override
         public void actionPerformed(ActionEvent event) {
             map.setNullWay();
-            map.setNullPoint();
+            map.setNullStartPoint();
+            map.setNullEndPoint();
             map.setGrid(false);
             map.repaint();
             commands.example.setSelected(false);
@@ -307,8 +315,27 @@ public class MainWindow extends JFrame{
                 commands.end.setSelected(false);
                 if(!commands.start.isSelected()) {
                     map.setGrid(false);
+                    map.setNullEndPoint();
                     map.repaint();
                 }
+            }
+        }
+    }
+
+    class JComboBoxDaysActionListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            int month = commands.month.getSelectedIndex();
+            int day = commands.day.getSelectedIndex();
+            if(day == 30 && month == 1) {
+                JOptionPane.showMessageDialog(null, "Несуществующая дата!", "Warning!", JOptionPane.PLAIN_MESSAGE);
+                commands.day.setSelectedIndex(29);
+            }
+            int lastDayJuly = 8;    //последний наступивший день июля(индексация с 0), не забывать менять
+            if(day > lastDayJuly && month == 2) {
+                JOptionPane.showMessageDialog(null, "Ненаступившая дата!", "Warning!", JOptionPane.PLAIN_MESSAGE);
+                commands.day.setSelectedIndex(lastDayJuly);
             }
         }
     }
@@ -319,7 +346,7 @@ public class MainWindow extends JFrame{
         private final JComboBox region = new JComboBox(new String[] {"Австралия", "Балканы", "Китай", "Индия", "Россия",
                 "Скандинавия", "США"});
         private JLabel labelMode = new JLabel("Выберите режим:");
-        private final JComboBox mode = new JComboBox(new String[] {"По времени", "По точке"});
+        private final JComboBox mode = new JComboBox(new String[] {"По времени", "К точке"});
         private final JToggleButton start = new JToggleButton("Выбрать стартовую точку");
         private final JLabel date = new JLabel("Выберите дату отправления:");
         private final JLabel labelMonth = new JLabel("Месяц:");
@@ -406,21 +433,10 @@ public class MainWindow extends JFrame{
                 path = "src" + File.separator + "gui" + File.separator + "balloon" + File.separator + "balloon.jpg";
                 image = ImageIO.read(new File(path));
             } catch (IOException e) {
-                String message = "File not open!";
-                JOptionPane.showMessageDialog(null, message, "Error!", JOptionPane.PLAIN_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Balloon not open!", "Error!", JOptionPane.PLAIN_MESSAGE);
                 System.exit(-1);
             }
         }
-
-        /*@Override
-        public void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            g.drawImage(image, 65, 400, this);
-            g.drawLine(65, 400, 65, 590);
-            g.drawLine(65, 400, 189, 400);
-            g.drawLine(65, 590, 189, 590);
-            g.drawLine(189, 400, 189, 590);
-        }*/
 
         @Override
         public void paint(Graphics g) {

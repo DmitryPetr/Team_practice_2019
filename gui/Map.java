@@ -2,7 +2,7 @@ package gui;
 
 import dateStruct.Vertex;
 import dateStruct.doublePoint;
-import org.jetbrains.annotations.NotNull;
+//import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -128,7 +128,7 @@ public class Map extends JPanel {
      * @param coord - точка проверки
      * @return true - если входит в область видимой карты
      */
-    private boolean isVisible(@NotNull doublePoint coord) {
+    private boolean isVisible(/*@NotNull*/ doublePoint coord) {
         int borderX = 10;
         int borderY = 50;
         return (!(coord.getX() <= borderX) && !(coord.getX() >= width + borderX)) &&
@@ -176,15 +176,14 @@ public class Map extends JPanel {
 
     public doublePoint getUpperRight(){return upperRight;}
 
-    public void setNullPoint() {
-        StartPoint = null;
-        EndPoint = null;
-    }
-
     public void setNullWay() { BalloonWay = null; }
 
+    public void setNullStartPoint() { StartPoint = null; }
+
+    public void setNullEndPoint() { EndPoint = null; }
+
     /**
-     * проверка установки стартовой и конечной точки для алогритма по точке
+     * проверка установки стартовой и конечной точки для алогритма к точке
      * @return - true, если точки установлены; false, если одна из них null
      */
     public boolean isPointsInit() { return StartPoint != null && EndPoint != null;}
@@ -227,8 +226,7 @@ public class Map extends JPanel {
             path = "src" + File.separator + "gui" + File.separator + "maps" + File.separator + region;
             MapImage = ImageIO.read(new File(path));
         } catch (IOException e) {
-            String message = "File not open!";
-            JOptionPane.showMessageDialog(null, message, "Error!", JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Map not open!", "Error!", JOptionPane.PLAIN_MESSAGE);
             System.exit(-1);
         }
 
@@ -291,9 +289,6 @@ public class Map extends JPanel {
                     g.drawString(vertex.getRealCoordinate().toString(), X -30, Y - 5);
                 }
 
-
-
-
                 if(prevPoint == null){
                     prevPoint = new doublePoint(X+radius,Y+radius);
                     continue;
@@ -302,6 +297,21 @@ public class Map extends JPanel {
                 g.drawLine((int)prevPoint.getX(),(int)prevPoint.getY(),X+radius,Y+radius);
                 prevPoint = new doublePoint(X+radius,Y+radius);
 
+            }
+        }
+
+        if(EndPoint != null && StartPoint != null){
+            if (StartPoint.equals(EndPoint)) {
+                Color temp = new Color(128, 0, 128);
+                g.setColor(temp);
+
+                int X = (int) Math.round(StartPoint.getX() * ScaleFactor - offsetX - 1.5 * radius);
+                int Y = (int) Math.round(StartPoint.getY() * ScaleFactor - offsetY - 1.5 * radius);
+
+                g.drawOval( X, Y,3*radius,3*radius);
+                g.fillOval( X, Y,3*radius,3*radius);
+                g.drawString("s-t/f-h", X -10, Y + 20);
+                return;
             }
         }
 

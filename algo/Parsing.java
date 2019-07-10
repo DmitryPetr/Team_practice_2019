@@ -4,6 +4,7 @@ import dateStruct.Time;
 import dateStruct.WeatherParameters;
 import logger.Logs;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -94,13 +95,7 @@ public class Parsing {
             }
         }
         if(!flagTry){
-
-            /**
-             * Показывать окошко с информацией о том, что подключиться не удалось, пользователь должен попробовать отправить запрос ещё раз!
-             * Но это стоит обговорить!
-             *
-             * */
-
+            JOptionPane.showMessageDialog(null, "Подключиться к серверу не удалось! Повторите ещё раз!", "Warning!", JOptionPane.PLAIN_MESSAGE);
         }
     }
 
